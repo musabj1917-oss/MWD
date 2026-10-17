@@ -2,7 +2,8 @@
 
 import { z } from 'zod';
 import { db } from '@/db';
-import { inquiries, inquiryNotes, portfolioProjects } from '@/db/schema';
+import { botMessages, inquiries, inquiryNotes, portfolioProjects } from '@/db/schema';
+import { BOT_DEFAULTS, validateBotText } from '@/lib/bot-fields';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -157,4 +158,31 @@ export async function saveProject(
   revalidatePath('/portfolio');
   revalidatePath(`/portfolio/${slug}`);
   redirect('/admin/portfolio');
+}
+
+/* ---------- Telegram bot messages ---------- */
+
+export type BotMessageState = { ok: boolean; message: string };
+
+export async function saveBotMessage(key: string, _prev: BotMessageState, formData: FormData): Promise<BotMessageState> {
+  await enforceAdmin();
+  if (!(key in BOT_DEFAULTS)) return { ok: false, message: 'Unknown message.' };
+  const value = String(formData.get('value') ?? '').replace(/\r\n/g, '\n').trim();
+  const error = validateBotText(key, value);
+  if (error) return { ok: false, message: error };
+
+  await db
+    .insert(botMessages)
+    .values({ key, value })
+    .onConflictDoUpdate({ target: botMessages.key, set: { value, updatedAt: new Date() } });
+  revalidatePath('/admin/bot');
+  return { ok: true, message: 'Saved. The bot uses it right away.' };
+}
+
+export async function resetBotMessage(key: string, _prev: BotMessageState): Promise<BotMessageState> {
+  await enforceAdmin();
+  if (!(key in BOT_DEFAULTS)) return { ok: false, message: 'Unknown message.' };
+  await db.delete(botMessages).where(eq(botMessages.key, key));
+  revalidatePath('/admin/bot');
+  return { ok: true, message: 'Restored the original text.' };
 }

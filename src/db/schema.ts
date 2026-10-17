@@ -130,3 +130,10 @@ export const telegramSessions = pgTable('telegram_sessions', {
   data: text('data'),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
+
+// Telegram bot messages edited from /admin/bot. A missing row means "use the built-in default".
+export const botMessages = pgTable('bot_messages', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});

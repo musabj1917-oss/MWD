@@ -52,3 +52,7 @@ upload the main photo and gallery photos, tick *Published*, save.
 **Emails:** set `GMAIL_USER`, `GMAIL_APP_PASSWORD` and `ADMIN_NOTIFY_EMAIL`. Customer photos from the quote form are attached to both emails.
 
 **Contact details** (email, phone, WhatsApp, Telegram, reply time promised in emails) all live in `src/lib/site.ts`.
+
+**Telegram bot editor:** sign in at `/admin` and open *Telegram bot* to edit every message the bot sends, with a live preview.
+This adds a `bot_messages` table, so run `npm run db:generate` then `npm run db:migrate` once after pulling this change.
+Until the table exists the bot keeps working with its built-in text.

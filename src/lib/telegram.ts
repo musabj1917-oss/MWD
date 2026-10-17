@@ -3,6 +3,7 @@ import { db } from '@/db';
 import { telegramProcessedUpdates, telegramSessions, inquiries } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
+import { botText } from '@/lib/bot-content';
 
 // --- Telegram API Types ---
 export interface TelegramUser {
@@ -292,7 +293,7 @@ async function handleCallbackQuery(cb: TelegramCallbackQuery): Promise<void> {
     await clearSession(chatIdStr);
     await sendTelegramMessage(
       chatId,
-      '<b>Welcome to MWD (Musab Web Design)</b>\n\nWe build custom websites, high-performing e-commerce storefronts, and elegant digital restaurant menus for ambitious businesses.\n\nSelect an option below:',
+      await botText('welcome_menu'),
       MAIN_MENU_KEYBOARD
     );
     return;
@@ -301,7 +302,7 @@ async function handleCallbackQuery(cb: TelegramCallbackQuery): Promise<void> {
   if (data === 'menu_services') {
     await sendTelegramMessage(
       chatId,
-      '<b>MWD Digital Services</b>\n\nChoose a service category below to learn details and feature options:',
+      await botText('services_intro'),
       SERVICES_KEYBOARD
     );
     return;
@@ -310,7 +311,7 @@ async function handleCallbackQuery(cb: TelegramCallbackQuery): Promise<void> {
   if (data === 'service_web') {
     await sendTelegramMessage(
       chatId,
-      '<b>🌐 Custom Website Development</b>\n\nConversion-led, ultra-fast websites built with modern Tech Stack (Next.js, TypeScript, React 19, Tailwind CSS).\n\n<b>Included Features:</b>\n• Custom UI/UX & Responsive Design\n• SEO & Performance Optimization\n• CMS & Admin Dashboard Integration\n• Analytics & Lead Forms\n\n<i>Ready to start? Click below to request a website!</i>',
+      await botText('service_web'),
       {
         inline_keyboard: [
           [{ text: '🚀 Request Custom Website', callback_data: 'req_service_Custom Website' }],
@@ -324,7 +325,7 @@ async function handleCallbackQuery(cb: TelegramCallbackQuery): Promise<void> {
   if (data === 'service_ecom') {
     await sendTelegramMessage(
       chatId,
-      '<b>🛍 E-Commerce & Dropshipping Stores</b>\n\nHigh-converting digital storefronts designed for speed, seamless navigation, and frictionless checkout.\n\n<b>Included Features:</b>\n• Shopify or Custom Next.js + Stripe Integration\n• Catalog & Inventory Setup\n• Mobile-Optimized Shopping Cart\n• Order Tracking & Admin Panel\n\n<i>Ready to start selling? Request your store now!</i>',
+      await botText('service_ecom'),
       {
         inline_keyboard: [
           [{ text: '🚀 Request E-commerce Store', callback_data: 'req_service_E-commerce Store' }],
@@ -338,7 +339,7 @@ async function handleCallbackQuery(cb: TelegramCallbackQuery): Promise<void> {
   if (data === 'service_menu') {
     await sendTelegramMessage(
       chatId,
-      '<b>🍽 Digital Restaurant Menus & QR Solutions</b>\n\nModern interactive menus that make browsing, discovery, and ordering effortless for restaurant guests.\n\n<b>Included Features:</b>\n• Custom QR Code Generation\n• Fast Mobile Web App (no download required)\n• Instant Admin Menu & Pricing Management\n• Multi-Category & Item Photos\n\n<i>Elevate your restaurant experience today!</i>',
+      await botText('service_menu'),
       {
         inline_keyboard: [
           [{ text: '🚀 Request Digital Menu', callback_data: 'req_service_Digital Menu' }],
@@ -352,7 +353,7 @@ async function handleCallbackQuery(cb: TelegramCallbackQuery): Promise<void> {
   if (data === 'menu_ask_ai') {
     await sendTelegramMessage(
       chatId,
-      '<b>🤖 MWD AI Assistant (Coming Soon)</b>\n\nOur AI Assistant is currently in development for Phase 2. Soon you will be able to ask questions about site architectures, request instant project cost estimates, and get automated technical recommendations.\n\nIn the meantime, feel free to submit an inquiry or contact us directly!',
+      await botText('ask_ai'),
       MAIN_MENU_KEYBOARD
     );
     return;
@@ -361,7 +362,7 @@ async function handleCallbackQuery(cb: TelegramCallbackQuery): Promise<void> {
   if (data === 'menu_contact') {
     await sendTelegramMessage(
       chatId,
-      '<b>📞 Contact MWD</b>\n\n• <b>Email:</b> musabj1917@gmail.com\n• <b>Phone:</b> +251 924 502 450\n• <b>Telegram Direct:</b> @Ethiofreelancer_m\n• <b>Location:</b> Addis Ababa, Ethiopia\n• <b>Website:</b> https://mwd-xm8f.vercel.app/contact\n\n<i>We respond to all inquiries within 1 business day.</i>',
+      await botText('contact'),
       MAIN_MENU_KEYBOARD
     );
     return;
@@ -371,7 +372,7 @@ async function handleCallbackQuery(cb: TelegramCallbackQuery): Promise<void> {
     await setSession(chatIdStr, { step: 'awaiting_service' });
     await sendTelegramMessage(
       chatId,
-      '<b>🚀 Guided Website Request Flow</b>\n\nStep 1 of 3: Which service are you interested in?',
+      await botText('request_intro'),
       INQUIRY_SERVICE_KEYBOARD
     );
     return;
@@ -382,7 +383,7 @@ async function handleCallbackQuery(cb: TelegramCallbackQuery): Promise<void> {
     await setSession(chatIdStr, { step: 'awaiting_details', serviceOfInterest: selectedService });
     await sendTelegramMessage(
       chatId,
-      `<b>Service selected:</b> ${selectedService}\n\nStep 2 of 3: Please send us your <b>Name</b> and <b>Email or Phone number</b> (e.g. <code>John Doe, john@example.com</code>).`
+      await botText('step2', { service: selectedService })
     );
     return;
   }
@@ -415,7 +416,7 @@ async function handleMessage(msg: TelegramMessage): Promise<void> {
     await clearSession(chatIdStr);
     await sendTelegramMessage(
       chatId,
-      '<b>Welcome to MWD (Musab Web Design)</b>\n\nWe build custom websites, high-performing e-commerce storefronts, and elegant digital restaurant menus for ambitious businesses.\n\nUse the menu below or type your inquiry anytime!',
+      await botText('welcome_start'),
       MAIN_MENU_KEYBOARD
     );
     return;
@@ -432,7 +433,7 @@ async function handleMessage(msg: TelegramMessage): Promise<void> {
     });
     await sendTelegramMessage(
       chatId,
-      'Step 3 of 3: Please briefly describe your project goals, features needed, or budget timeline.'
+      await botText('step3')
     );
     return;
   }
@@ -457,7 +458,7 @@ async function handleMessage(msg: TelegramMessage): Promise<void> {
 
       await sendTelegramMessage(
         chatId,
-        `<b>✅ Inquiry Received!</b>\n\nThank you for reaching out to MWD. Your inquiry reference is <code>${reference}</code>.\n\nOur team will review your project details and contact you shortly!\n\nWebsite: https://mwd-xm8f.vercel.app`,
+        await botText('inquiry_done', { reference }),
         MAIN_MENU_KEYBOARD
       );
     } catch (error) {
@@ -474,7 +475,7 @@ async function handleMessage(msg: TelegramMessage): Promise<void> {
   // Default response for unhandled text messages
   await sendTelegramMessage(
     chatId,
-    'I received your message. Please choose an option from the menu below or click <b>Request a Website</b> to start an inquiry:',
+    await botText('fallback'),
     MAIN_MENU_KEYBOARD
   );
 }

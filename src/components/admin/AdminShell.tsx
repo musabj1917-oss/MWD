@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import { ExternalLink, Images, Inbox, LayoutDashboard, LogOut } from 'lucide-react';
+import { Bot, ExternalLink, Images, Inbox, LayoutDashboard, LogOut } from 'lucide-react';
 
 const NAV = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/admin/inquiries', label: 'Quote requests', icon: Inbox },
   { href: '/admin/portfolio', label: 'Portfolio & photos', icon: Images },
+  { href: '/admin/bot', label: 'Telegram bot', icon: Bot },
 ];
 
 export function AdminShell({ email, children }: { email?: string | null; children: React.ReactNode }) {
