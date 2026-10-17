@@ -35,7 +35,7 @@ export default async function AdminInquiriesPage() {
                        'use server';
                        await updateInquiryStatus(inq.id, formData.get('status') as string);
                    }}>
-                     <select name="status" defaultValue={inq.status} className="border rounded p-1 text-sm bg-white">
+                     <select name="status" defaultValue={inq.status}  className="border rounded p-1 text-sm bg-white">
                         <option value="new">New</option>
                         <option value="reviewing">Reviewing</option>
                         <option value="quoted">Quoted</option>

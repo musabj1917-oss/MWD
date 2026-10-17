@@ -63,7 +63,7 @@ export const authOptions: NextAuthOptions = {
       if (token.email) {
           const dbUser = await db.select({ role: users.role }).from(users).where(eq(users.email, token.email)).limit(1);
           if (dbUser.length > 0) {
-              token.role = (dbUser as any)[0].role;
+              token.role = dbUser[0].role;
           }
       }
       return token;
@@ -81,7 +81,7 @@ export const authOptions: NextAuthOptions = {
             if (!email) return false;
 
             const existingUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
-            if ((existingUser as any).length === 0) {
+            if (existingUser.length === 0) {
                  await db.insert(users).values({
                     email: email,
                     name: user.name,

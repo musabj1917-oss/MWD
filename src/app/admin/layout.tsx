@@ -7,6 +7,7 @@ export default function AdminLayout({
 }) {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col md:flex-row">
+      {/* Sidebar */}
       <aside className="w-full md:w-64 bg-gray-900 text-white min-h-screen flex-shrink-0">
         <div className="p-4 font-bold text-xl border-b border-gray-800">
           <Link href="/admin">MWD Admin</Link>
@@ -18,6 +19,7 @@ export default function AdminLayout({
         </nav>
       </aside>
 
+      {/* Main Content */}
       <main className="flex-grow p-4 md:p-8 overflow-auto">
         <div className="max-w-6xl mx-auto">
           {children}

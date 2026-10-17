@@ -36,7 +36,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-12 border-t border-gray-800 pt-8 text-center text-gray-400">
-          <p>&copy; 2026 MWD Site. All rights reserved.</p>
+          <p>&copy; {'2026'} MWD Site. All rights reserved.</p>
         </div>
       </div>
     </footer>

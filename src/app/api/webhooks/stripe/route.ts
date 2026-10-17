@@ -28,6 +28,7 @@ export async function POST(req: Request) {
     return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 });
   }
 
+  // Handle the event
   try {
     switch (event.type) {
       case 'checkout.session.completed':
@@ -41,6 +42,7 @@ export async function POST(req: Request) {
            console.log(`Order ${orderReference} marked as paid.`);
         }
         break;
+      // ... handle other event types
       default:
         console.log(`Unhandled event type ${event.type}`);
     }

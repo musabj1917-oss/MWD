@@ -12,7 +12,7 @@ const createMockDb = () => {
   return new Proxy({}, {
     get: (target, prop) => {
         if (prop === 'select') return () => ({ from: () => {
-            const arr = [{count: 0, createdAt: new Date('2026-01-01')}];
+            const arr = [{count: 0, createdAt: new Date()}];
             (arr as any).where = () => arr;
             (arr as any).orderBy = () => arr;
             (arr as any).limit = () => arr;

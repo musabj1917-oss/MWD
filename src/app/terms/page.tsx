@@ -7,7 +7,7 @@ export default function TermsPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 prose">
       <h1 className="text-4xl font-bold mb-8 text-gray-900">Terms of Service</h1>
-      <p><em>Last updated: October 17, 2026</em></p>
+      <p><em>Last updated: {new Date().toLocaleDateString()}</em></p>
       
       <h2>1. Terms</h2>
       <p>
