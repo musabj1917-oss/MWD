@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function AboutPage() {
   return (
-    <main className="container py-20">
+    <div className="container py-20">
       <header className="max-w-3xl mb-12">
         <p className="text-red-600 font-semibold uppercase tracking-[0.2em] text-xs">About MWD</p>
         <h1 className="text-4xl md:text-5xl font-bold mt-4">We build digital experiences that earn trust.</h1>
@@ -63,6 +63,6 @@ export default function AboutPage() {
         <h2 className="text-3xl font-semibold mb-4">Let’s build something that feels unmistakably yours.</h2>
         <Link href="/request-quote" className="btn-primary">Start your project</Link>
       </section>
-    </main>
+    </div>
   );
 }

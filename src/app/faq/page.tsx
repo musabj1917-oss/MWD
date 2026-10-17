@@ -22,7 +22,7 @@ const faqs = [
 
 export default function FAQPage() {
   return (
-    <main className="container py-20">
+    <div className="container py-20">
       <header className="max-w-3xl mb-12">
         <p className="text-red-600 font-semibold uppercase tracking-[0.2em] text-xs">FAQ</p>
         <h1 className="text-4xl md:text-5xl font-bold mt-4">Frequently asked questions.</h1>
@@ -40,6 +40,6 @@ export default function FAQPage() {
       <div className="mt-12 text-center">
         <Link href="/contact" className="btn-primary">Have another question?</Link>
       </div>
-    </main>
+    </div>
   );
 }

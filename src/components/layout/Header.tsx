@@ -17,6 +17,7 @@ export function Header() {
             <Link href="/portfolio" className="text-gray-800 hover:text-red-600">Portfolio</Link>
             <Link href="/pricing" className="text-gray-800 hover:text-red-600">Pricing</Link>
             <Link href="/about" className="text-gray-800 hover:text-red-600">About</Link>
+            <Link href="/faq" className="text-gray-800 hover:text-red-600">FAQ</Link>
           </nav>
         </div>
 
@@ -46,6 +47,7 @@ export function Header() {
               <Link href="/portfolio" onClick={() => setOpen(false)} className="text-black">Portfolio</Link>
               <Link href="/pricing" onClick={() => setOpen(false)} className="text-black">Pricing</Link>
               <Link href="/about" onClick={() => setOpen(false)} className="text-black">About</Link>
+              <Link href="/faq" onClick={() => setOpen(false)} className="text-black">FAQ</Link>
               <Link href="/request-quote" onClick={() => setOpen(false)} className="btn-ghost mt-4">Request a Quote</Link>
               <Link href="/contact" onClick={() => setOpen(false)} className="btn-primary mt-2">Contact</Link>
             </nav>

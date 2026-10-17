@@ -25,7 +25,7 @@ export default function PricingPage() {
   ];
 
   return (
-    <main className="container py-20">
+    <div className="container py-20">
       <header className="max-w-3xl mb-12">
         <p className="text-red-600 font-semibold uppercase tracking-[0.2em] text-xs">Pricing</p>
         <h1 className="text-4xl md:text-5xl font-bold mt-4">Clear scope. Fair pricing. No guesswork.</h1>
@@ -47,6 +47,6 @@ export default function PricingPage() {
         <p className="text-gray-700 mb-6">Large projects, multi-page sites, complex stores, or custom integrations may require a tailored scope and timeline. We can cover that with a short discovery call.</p>
         <Link href="/request-quote" className="btn-primary">Discuss your project</Link>
       </section>
-    </main>
+    </div>
   );
 }

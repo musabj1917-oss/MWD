@@ -1,10 +1,11 @@
 import Link from 'next/link';
+import { SITE, telHref, mailHref, whatsappHref } from '@/lib/site';
 
 export function Footer() {
   return (
     <footer className="bg-black text-white py-12">
       <div className="container">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           <div>
             <span className="text-2xl font-bold">MWD</span>
             <p className="mt-4 text-gray-400">Web design and digital solutions focused on clarity, performance, and measurable results.</p>
@@ -32,6 +33,15 @@ export function Footer() {
             <ul className="space-y-2 text-gray-400">
               <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
               <li><Link href="/terms" className="hover:text-white">Terms of Service</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-semibold text-lg mb-4">Get in touch</h3>
+            <ul className="space-y-2 text-gray-400">
+              <li><a href={mailHref} className="hover:text-white" style={{ color: 'inherit' }}>{SITE.email}</a></li>
+              <li><a href={telHref} className="hover:text-white" style={{ color: 'inherit' }}>{SITE.phoneDisplay}</a></li>
+              <li><a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="hover:text-white" style={{ color: 'inherit' }}>WhatsApp</a></li>
+              <li><a href={SITE.github} target="_blank" rel="noopener noreferrer" className="hover:text-white" style={{ color: 'inherit' }}>GitHub</a></li>
             </ul>
           </div>
         </div>

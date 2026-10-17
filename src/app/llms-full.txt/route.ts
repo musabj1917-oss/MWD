@@ -27,7 +27,7 @@ export async function GET() {
 
   content += `## Contact & Quotes\n`;
   content += `To request a custom quote, visit ${baseUrl}/request-quote.\n`;
-  content += `For general inquiries, visit ${baseUrl}/contact or email hello@mwdsite.placeholder.\n`;
+  content += `For general inquiries, visit ${baseUrl}/contact or email musabj1917@gmail.com.\n`;
 
   return new NextResponse(content, {
     headers: {

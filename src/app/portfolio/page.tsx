@@ -14,7 +14,7 @@ export default async function PortfolioPage() {
   const projects = await db.select().from(portfolioProjects).where(eq(portfolioProjects.published, true)).orderBy(desc(portfolioProjects.createdAt));
 
   return (
-    <main className="container py-20">
+    <div className="container py-20">
       <header className="max-w-3xl mb-12">
         <p className="text-red-600 font-semibold uppercase tracking-[0.2em] text-xs">Portfolio</p>
         <h1 className="text-4xl md:text-5xl font-bold mt-4">Selected work.</h1>
@@ -46,6 +46,6 @@ export default async function PortfolioPage() {
           ))}
         </div>
       )}
-    </main>
+    </div>
   );
 }

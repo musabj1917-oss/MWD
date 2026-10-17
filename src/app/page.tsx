@@ -32,7 +32,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main>
+      <div>
         <section className="py-20 bg-white">
           <div className="container">
             <h2 className="text-3xl font-semibold mb-6">Core services</h2>
@@ -109,7 +109,7 @@ export default function Home() {
             <Link href="/request-quote" className="btn-primary">Request a quote</Link>
           </div>
         </section>
-      </main>
+      </div>
     </div>
   );
 }

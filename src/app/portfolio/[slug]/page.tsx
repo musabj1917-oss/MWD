@@ -31,7 +31,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const project = projectResult[0];
 
   return (
-    <main className="container py-20">
+    <div className="container py-20">
       <article>
         <p className="text-red-600 font-semibold uppercase tracking-[0.2em] text-xs">{project.category}</p>
         <h1 className="text-4xl md:text-5xl font-bold mt-4 mb-4">{project.title}</h1>
@@ -53,6 +53,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </div>
         )}
       </article>
-    </main>
+    </div>
   );
 }

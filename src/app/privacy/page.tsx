@@ -5,7 +5,7 @@ export const metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <main className="container py-20 max-w-3xl">
+    <div className="container py-20 max-w-3xl">
       <h1 className="text-4xl font-bold mb-6">Privacy Policy</h1>
       <p className="text-gray-700 mb-6">We respect your privacy and only collect information needed to respond to enquiries, provide our services, and improve the experience on our site.</p>
 
@@ -23,6 +23,6 @@ export default function PrivacyPolicyPage() {
           <p>We do not sell personal information. We only share it when necessary to deliver our service or comply with applicable legal obligations.</p>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

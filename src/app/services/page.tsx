@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function ServicesPage() {
     return (
-        <main className="container py-20">
+        <div className="container py-20">
             <header className="mb-12">
                 <h1 className="text-4xl font-bold">Services</h1>
                 <p className="text-gray-600 mt-4">We focus on a concise set of services so we can deliver thoughtful, well-executed work.</p>
@@ -59,6 +59,6 @@ export default function ServicesPage() {
                     <li>Launch & iterate — measurement and phased improvements.</li>
                 </ol>
             </section>
-        </main>
+        </div>
     );
 }
