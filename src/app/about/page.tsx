@@ -1,49 +1,68 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'About Us | MWD Site',
-  description: 'Learn about MWD Site, our mission, and our approach to digital services.',
+  title: 'About MWD — Digital Agency',
+  description: 'Learn how MWD designs and builds high-performing websites, e-commerce stores, and digital menus for businesses that want to grow online.',
 };
 
 export default function AboutPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <h1 className="text-4xl font-bold mb-8 text-center text-gray-900">About MWD Site</h1>
-      
-      <div className="prose max-w-none text-gray-700 text-lg space-y-6">
-        <p>
-          At <strong>MWD Site</strong>, we believe that every business deserves a powerful digital presence. 
-          We are a full-stack digital agency specializing in website development, dropshipping e-commerce stores, and digital restaurant menus.
-        </p>
+    <main className="container py-20">
+      <header className="max-w-3xl mb-12">
+        <p className="text-red-600 font-semibold uppercase tracking-[0.2em] text-xs">About MWD</p>
+        <h1 className="text-4xl md:text-5xl font-bold mt-4">We build digital experiences that earn trust.</h1>
+      </header>
 
-        <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">Our Mission</h2>
-        <p>
-          Our mission is to bridge the gap between businesses and their online potential. We build reliable, fast, and accessible digital solutions that not only look great but also drive tangible results. We focus on modern technologies to provide our clients with the best possible platforms.
-        </p>
+      <section className="grid md:grid-cols-2 gap-10 mb-16">
+        <div className="border p-8">
+          <h2 className="text-2xl font-semibold mb-4">Our story</h2>
+          <p className="text-gray-700">MWD is a digital agency focused on clean design, smart strategy, and performance-minded execution. We help businesses move from fragmented online presence to a confident, conversion-ready digital presence.</p>
+        </div>
+        <div className="bg-gray-100 p-8">
+          <p className="text-gray-700">We believe the strongest digital work is practical, well-crafted, and easy to use. That means clear messaging, fast sites, thoughtful UX, and technology that supports business goals instead of distracting from them.</p>
+        </div>
+      </section>
 
-        <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">Our Approach</h2>
-        <p>
-          We don't just write code; we solve business problems. Our development process involves:
-        </p>
-        <ul className="list-disc pl-6 space-y-2">
-            <li><strong>Understanding:</strong> Learning about your business goals and target audience.</li>
-            <li><strong>Strategy:</strong> Planning the right architecture, design, and user experience.</li>
-            <li><strong>Execution:</strong> Building the solution with modern frameworks like Next.js and secure databases.</li>
-            <li><strong>Delivery:</strong> Testing thoroughly before launching your project to the world.</li>
-        </ul>
+      <section className="mb-20">
+        <h2 className="text-3xl font-semibold mb-8">What drives us</h2>
+        <div className="grid md:grid-cols-3 gap-6">
+          <article className="border p-6">
+            <h3 className="text-xl font-semibold mb-2">Clarity</h3>
+            <p className="text-gray-700">We define the right strategy before design or development begins.</p>
+          </article>
+          <article className="border p-6">
+            <h3 className="text-xl font-semibold mb-2">Performance</h3>
+            <p className="text-gray-700">Speed, accessibility, and responsive implementation are part of the brief.</p>
+          </article>
+          <article className="border p-6">
+            <h3 className="text-xl font-semibold mb-2">Trust</h3>
+            <p className="text-gray-700">We design for credibility and conversion so people feel confident acting.</p>
+          </article>
+        </div>
+      </section>
 
-        <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">Why Choose Us?</h2>
-        <p>
-          We prioritize quality, security, and performance. Unlike template-farm agencies, we build tailored solutions that can scale as your business grows. We keep our communication clear, our pricing transparent, and our code clean.
-        </p>
-      </div>
+      <section className="mb-20">
+        <h2 className="text-3xl font-semibold mb-8">How we work</h2>
+        <div className="space-y-6">
+          <div className="border p-6">
+            <h3 className="text-xl font-semibold mb-2">1. Discover</h3>
+            <p className="text-gray-700">We learn about your business, audience, current challenges, and what success looks like.</p>
+          </div>
+          <div className="border p-6">
+            <h3 className="text-xl font-semibold mb-2">2. Design</h3>
+            <p className="text-gray-700">We shape the experience around your brand voice, positioning, and conversion goals.</p>
+          </div>
+          <div className="border p-6">
+            <h3 className="text-xl font-semibold mb-2">3. Build</h3>
+            <p className="text-gray-700">We turn the design into a stable, maintainable front-end and product experience.</p>
+          </div>
+        </div>
+      </section>
 
-      <div className="mt-16 text-center">
-        <h2 className="text-2xl font-bold mb-4">Let's build something great together.</h2>
-        <Link href="/contact" className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
-          Contact Us
-        </Link>
-      </div>
-    </div>
+      <section className="text-center">
+        <h2 className="text-3xl font-semibold mb-4">Let’s build something that feels unmistakably yours.</h2>
+        <Link href="/request-quote" className="btn-primary">Start your project</Link>
+      </section>
+    </main>
   );
 }

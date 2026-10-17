@@ -1,37 +1,45 @@
-import { db } from '@/db';
-import { faqs } from '@/db/schema';
-import { eq, asc } from 'drizzle-orm';
-
-export const dynamic = 'force-dynamic';
+import Link from 'next/link';
 
 export const metadata = {
-  title: 'Frequently Asked Questions | MWD Site',
-  description: 'Find answers to common questions about our web development and digital services.',
+  title: 'FAQ — MWD',
+  description: 'Frequently asked questions about MWD services, collaboration, timelines, and project scope.',
 };
 
+const faqs = [
+  {
+    question: 'What kind of projects does MWD take on?',
+    answer: 'MWD works on business websites, landing pages, e-commerce stores, digital menus, and other brand-focused digital experiences.',
+  },
+  {
+    question: 'How long does a project usually take?',
+    answer: 'Timeline depends on scope, but most projects move through discovery, design, build, and launch in a structured, phased workflow.',
+  },
+  {
+    question: 'Do you offer custom packages?',
+    answer: 'Yes. We can scope projects for your specific business goals and build a custom proposal around the work, timeline, and deliverables needed.',
+  },
+];
 
-export default async function FAQPage() {
-  const faqList = await db.select().from(faqs).where(eq(faqs.published, true)).orderBy(asc(faqs.displayOrder));
-
+export default function FAQPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <h1 className="text-4xl font-bold mb-4 text-center text-gray-900">Frequently Asked Questions</h1>
-      <p className="text-xl text-center text-gray-600 mb-12">
-        Find answers to common questions about working with us.
-      </p>
+    <main className="container py-20">
+      <header className="max-w-3xl mb-12">
+        <p className="text-red-600 font-semibold uppercase tracking-[0.2em] text-xs">FAQ</p>
+        <h1 className="text-4xl md:text-5xl font-bold mt-4">Frequently asked questions.</h1>
+      </header>
 
-      {faqList.length === 0 ? (
-        <p className="text-center text-gray-500 bg-gray-50 py-10 rounded border">No FAQs available at the moment. Please contact us directly.</p>
-      ) : (
-        <div className="space-y-6">
-          {faqList.map((faq: any) => (
-            <div key={faq.id} className="bg-white p-6 rounded-lg border shadow-sm">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{faq.question}</h3>
-              <p className="text-gray-700">{faq.answer}</p>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+      <div className="space-y-6">
+        {faqs.map((faq) => (
+          <article key={faq.question} className="border p-6">
+            <h2 className="text-xl font-semibold mb-3">{faq.question}</h2>
+            <p className="text-gray-700">{faq.answer}</p>
+          </article>
+        ))}
+      </div>
+
+      <div className="mt-12 text-center">
+        <Link href="/contact" className="btn-primary">Have another question?</Link>
+      </div>
+    </main>
   );
 }
