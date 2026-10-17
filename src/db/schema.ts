@@ -1,4 +1,11 @@
-import { pgTable, text, timestamp, boolean, serial, integer } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, boolean, serial, integer, customType } from 'drizzle-orm/pg-core';
+
+// Raw binary column, used to store uploaded photos directly in Postgres
+const bytea = customType<{ data: Buffer; driverData: Buffer }>({
+  dataType() {
+    return 'bytea';
+  },
+});
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -40,6 +47,7 @@ export const portfolioProjects = pgTable('portfolio_projects', {
   description: text('description').notNull(),
   category: text('category'),
   coverImage: text('cover_image'),
+  gallery: text('gallery').array(),
   projectUrl: text('project_url'),
   published: boolean('published').notNull().default(false),
   createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -51,8 +59,10 @@ export const inquiries = pgTable('inquiries', {
   name: text('name').notNull(),
   email: text('email').notNull(),
   phone: text('phone'),
+  telegram: text('telegram'),
   serviceOfInterest: text('service_of_interest'),
   budgetRange: text('budget_range'),
+  timeline: text('timeline'),
   projectDescription: text('project_description').notNull(),
   status: text('status').notNull().default('new'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -85,5 +95,26 @@ export const orders = pgTable('orders', {
   currency: text('currency').notNull().default('USD'),
   status: text('status').notNull().default('pending'),
   paymentIntentId: text('payment_intent_id'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+// Photos uploaded from the admin panel (project covers and galleries). Served publicly at /api/images/[id].
+export const images = pgTable('images', {
+  id: text('id').primaryKey(),
+  filename: text('filename'),
+  contentType: text('content_type').notNull(),
+  size: integer('size').notNull(),
+  data: bytea('data').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+// Photos customers attach to a quote request. Private: only served to admins.
+export const inquiryAttachments = pgTable('inquiry_attachments', {
+  id: serial('id').primaryKey(),
+  inquiryId: integer('inquiry_id').notNull().references(() => inquiries.id, { onDelete: 'cascade' }),
+  filename: text('filename'),
+  contentType: text('content_type').notNull(),
+  size: integer('size').notNull(),
+  data: bytea('data').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });

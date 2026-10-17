@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { SITE, telHref, mailHref, whatsappHref } from '@/lib/site';
+import { SITE, telHref, mailHref, whatsappHref, telegramHref } from '@/lib/site';
 
 export function Footer() {
   return (
@@ -41,6 +41,7 @@ export function Footer() {
               <li><a href={mailHref} className="hover:text-white" style={{ color: 'inherit' }}>{SITE.email}</a></li>
               <li><a href={telHref} className="hover:text-white" style={{ color: 'inherit' }}>{SITE.phoneDisplay}</a></li>
               <li><a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="hover:text-white" style={{ color: 'inherit' }}>WhatsApp</a></li>
+              <li><a href={telegramHref} target="_blank" rel="noopener noreferrer" className="hover:text-white" style={{ color: 'inherit' }}>Telegram @{SITE.telegramUsername}</a></li>
               <li><a href={SITE.github} target="_blank" rel="noopener noreferrer" className="hover:text-white" style={{ color: 'inherit' }}>GitHub</a></li>
             </ul>
           </div>

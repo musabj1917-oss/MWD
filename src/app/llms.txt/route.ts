@@ -21,6 +21,7 @@ MWD Site is a full-stack digital agency specializing in empowering businesses wi
 - Contact: ${baseUrl}/contact
 - Request a Quote: ${baseUrl}/request-quote
 - FAQ: ${baseUrl}/faq
+- Telegram: https://t.me/Ethiofreelancer_m
 `;
 
   return new NextResponse(content, {

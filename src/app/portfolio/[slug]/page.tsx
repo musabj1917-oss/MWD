@@ -47,6 +47,16 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           {project.description}
         </div>
 
+        {project.gallery && project.gallery.length > 0 && (
+          <div className="mt-12 grid gap-4 sm:grid-cols-2">
+            {project.gallery.map((src, i) => (
+              <div key={src} className="border bg-gray-100 aspect-[4/3] overflow-hidden">
+                <img src={src} alt={`${project.title} — photo ${i + 1}`} loading="lazy" className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
+        )}
+
         {project.projectUrl && (
           <div className="mt-10">
             <a href={project.projectUrl} target="_blank" rel="noreferrer" className="btn-primary">Visit live project</a>

@@ -1,6 +1,6 @@
-import { Phone, Mail, MessageCircle } from 'lucide-react';
+import { Phone, Mail, MessageCircle, Send } from 'lucide-react';
 import { ContactForm } from '@/components/ContactForm';
-import { SITE, telHref, mailHref, whatsappHref } from '@/lib/site';
+import { SITE, telHref, mailHref, whatsappHref, telegramHref } from '@/lib/site';
 
 export const metadata = {
   title: 'Contact MWD — Digital Agency',
@@ -22,6 +22,9 @@ export default function ContactPage() {
             <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded px-4 py-3 font-semibold" style={{ background: '#25D366', color: '#fff' }}>
               <MessageCircle size={20} aria-hidden /> Chat on WhatsApp
             </a>
+            <a href={telegramHref} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded px-4 py-3 font-semibold" style={{ background: '#229ED9', color: '#fff' }}>
+              <Send size={20} aria-hidden /> Telegram @{SITE.telegramUsername}
+            </a>
             <a href={telHref} className="btn-ghost inline-flex items-center gap-2">
               <Phone size={18} aria-hidden /> Call {SITE.phoneDisplay}
             </a>
@@ -35,6 +38,10 @@ export default function ContactPage() {
             <div>
               <h2 className="font-semibold text-lg mb-1">Phone</h2>
               <p><a href={telHref}>{SITE.phoneDisplay}</a></p>
+            </div>
+            <div>
+              <h2 className="font-semibold text-lg mb-1">Telegram</h2>
+              <p><a href={telegramHref} target="_blank" rel="noopener noreferrer">@{SITE.telegramUsername}</a></p>
             </div>
             <div>
               <h2 className="font-semibold text-lg mb-1">GitHub</h2>

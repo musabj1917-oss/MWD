@@ -4,6 +4,8 @@ import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+const field = 'w-full border border-gray-300 bg-white p-3 text-sm focus:border-red-600';
+
 export default function AdminLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -16,11 +18,7 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError('');
 
-    const res = await signIn('credentials', {
-      redirect: false,
-      email,
-      password,
-    });
+    const res = await signIn('credentials', { redirect: false, email, password });
 
     if (res?.error) {
       setError('Invalid email or password');
@@ -32,69 +30,44 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
-        <div>
-          <h2 className="text-center text-3xl font-extrabold text-gray-900">
-            Admin Login
-          </h2>
+    <div className="flex min-h-screen items-center justify-center bg-[#F4F4F2] px-4 py-12">
+      <div className="w-full max-w-md">
+        <div className="bg-black px-8 py-6 text-center">
+          <span className="text-3xl font-bold text-white" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+            MWD<span className="text-red-600">.</span>
+          </span>
+          <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-gray-400">Admin</p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleCredentialsLogin}>
-          {error && <div className="text-red-500 text-sm text-center">{error}</div>}
-          <div className="rounded-md shadow-sm space-y-4">
+        <div className="h-1 bg-red-600" />
+
+        <div className="border border-t-0 border-gray-300 bg-white p-8">
+          <h1 className="mb-6 text-2xl font-bold">Sign in</h1>
+
+          <form className="space-y-4" onSubmit={handleCredentialsLogin}>
+            {error && <div className="border border-red-300 bg-red-50 p-3 text-sm text-red-800">{error}</div>}
             <div>
-              <label className="sr-only">Email address</label>
-              <input
-                type="email"
-                required
-                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+              <label htmlFor="email" className="mb-1 block text-sm font-medium">Email</label>
+              <input id="email" type="email" required className={field} value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div>
-              <label className="sr-only">Password</label>
-              <input
-                type="password"
-                required
-                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <label htmlFor="password" className="mb-1 block text-sm font-medium">Password</label>
+              <input id="password" type="password" required className={field} value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70"
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
+            <button type="submit" disabled={loading} className="w-full bg-red-600 px-4 py-3 text-sm font-semibold hover:bg-black disabled:opacity-70" style={{ color: '#fff' }}>
+              {loading ? 'Signing in…' : 'Sign in'}
             </button>
-          </div>
-        </form>
+          </form>
 
-        <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or continue with</span>
-            </div>
+          <div className="my-6 flex items-center gap-3 text-xs text-gray-500">
+            <div className="h-px flex-1 bg-gray-300" /> or <div className="h-px flex-1 bg-gray-300" />
           </div>
 
-          <div className="mt-6">
-            <button
-              onClick={() => signIn('google', { callbackUrl: '/admin' })}
-              className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              Sign in with Google
-            </button>
-          </div>
+          <button
+            onClick={() => signIn('google', { callbackUrl: '/admin' })}
+            className="w-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium hover:border-black"
+          >
+            Sign in with Google
+          </button>
         </div>
       </div>
     </div>

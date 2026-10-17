@@ -34,3 +34,21 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+---
+
+## MWD site: notes on the latest changes
+
+**Database update required (new columns and tables for photos, Telegram and timeline):**
+
+```bash
+npm run db:generate   # creates the migration from src/db/schema.ts
+npm run db:migrate    # applies it to your DATABASE_URL
+```
+
+**Adding photos to the public portfolio:** sign in at `/admin`, open *Portfolio & photos*, click *Add project*,
+upload the main photo and gallery photos, tick *Published*, save.
+
+**Emails:** set `GMAIL_USER`, `GMAIL_APP_PASSWORD` and `ADMIN_NOTIFY_EMAIL`. Customer photos from the quote form are attached to both emails.
+
+**Contact details** (email, phone, WhatsApp, Telegram, reply time promised in emails) all live in `src/lib/site.ts`.

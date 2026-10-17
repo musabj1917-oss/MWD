@@ -3,7 +3,9 @@ import './globals.css';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
-import { SITE } from '@/lib/site';
+import { TelegramButton } from '@/components/TelegramButton';
+import { PublicOnly } from '@/components/PublicOnly';
+import { SITE, telegramHref } from '@/lib/site';
 
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://mwd-xm8f.vercel.app').replace(/\/$/, '');
 const normalizedUrl = /^https?:\/\//.test(siteUrl) ? siteUrl : `https://${siteUrl}`;
@@ -21,7 +23,7 @@ const organizationJsonLd = {
   url: normalizedUrl,
   email: SITE.email,
   telephone: SITE.phoneTel,
-  sameAs: [SITE.github],
+  sameAs: [SITE.github, telegramHref],
 };
 
 export default function RootLayout({
@@ -41,13 +43,16 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col bg-white text-black">
         <a href="#main" className="sr-only focus:not-sr-only">Skip to content</a>
-        <Header />
+        <PublicOnly><Header /></PublicOnly>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
         <main id="main" className="flex-grow">
           {children}
         </main>
-        <Footer />
-        <WhatsAppButton />
+        <PublicOnly>
+          <Footer />
+          <WhatsAppButton />
+          <TelegramButton />
+        </PublicOnly>
       </body>
     </html>
   );
