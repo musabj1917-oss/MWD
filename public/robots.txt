@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mwd-xm8f.vercel.app/sitemap.xml
+
+# Notes:
+# - Do not add sensitive or staging-only URLs here.
+# - For email/checkout webhooks, configure dedicated endpoints in Vercel environment variables.
