@@ -5,7 +5,7 @@ export const metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 prose">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 prose text-gray-900">
       <h1 className="text-4xl font-bold mb-8 text-gray-900">Privacy Policy</h1>
       <p><em>Last updated: {new Date().toLocaleDateString()}</em></p>
       
@@ -26,7 +26,7 @@ export default function PrivacyPolicyPage() {
         [Placeholder: We will only use your personal data when the law allows us to. Most commonly, we will use your personal data to perform the contract we are about to enter into or have entered into with you.]
       </p>
 
-      <p className="mt-8 text-sm text-gray-500">
+      <p className="mt-8 text-sm text-gray-700">
         Note: This is a placeholder policy and must be reviewed by legal counsel before use in production.
       </p>
     </div>
