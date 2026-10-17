@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import { describe, it, beforeEach, afterEach } from 'node:test';
-import { verifyTelegramSecret, processTelegramUpdate } from '../src/lib/telegram';
+import { verifyTelegramSecret, processTelegramUpdate, isAdminUser } from '../src/lib/telegram';
 
 describe('Telegram Webhook & Core Logic', () => {
   const originalEnv = process.env;
@@ -28,6 +28,21 @@ describe('Telegram Webhook & Core Logic', () => {
       assert.strictEqual(verifyTelegramSecret(null, 'secret'), false);
       assert.strictEqual(verifyTelegramSecret(undefined, 'secret'), false);
       assert.strictEqual(verifyTelegramSecret('secret', undefined), false);
+    });
+  });
+
+  describe('isAdminUser', () => {
+    it('returns true for user ID listed in TELEGRAM_ADMIN_IDS', () => {
+      process.env.TELEGRAM_ADMIN_IDS = '12345678, 87654321';
+      assert.strictEqual(isAdminUser(12345678), true);
+      assert.strictEqual(isAdminUser(87654321), true);
+    });
+
+    it('returns false for user ID not listed or missing TELEGRAM_ADMIN_IDS', () => {
+      process.env.TELEGRAM_ADMIN_IDS = '12345678';
+      assert.strictEqual(isAdminUser(99999999), false);
+      delete process.env.TELEGRAM_ADMIN_IDS;
+      assert.strictEqual(isAdminUser(12345678), false);
     });
   });
 

@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { db } from '@/db';
 import { telegramProcessedUpdates, telegramSessions, inquiries } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, desc, count } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 
 // --- Telegram API Types ---
@@ -51,6 +51,21 @@ export interface TelegramUpdate {
   update_id: number;
   message?: TelegramMessage;
   callback_query?: TelegramCallbackQuery;
+}
+
+// --- Admin Authorization Check ---
+export function isAdminUser(userId: number | undefined | null): boolean {
+  if (!userId) return false;
+  const adminIdsStr = process.env.TELEGRAM_ADMIN_IDS;
+  if (!adminIdsStr) return false;
+
+  const adminIds = adminIdsStr
+    .split(/[\s,]+/)
+    .map((id) => id.trim())
+    .filter(Boolean)
+    .map(Number);
+
+  return adminIds.includes(userId);
 }
 
 // --- Constant-time Header Verification ---
@@ -131,7 +146,6 @@ async function isDuplicateUpdate(updateId: number): Promise<boolean> {
     return false;
   } catch (error) {
     console.error('Database error checking telegram update deduplication:', error);
-    // If DB fails, allow processing safely to avoid completely breaking bot
     return false;
   }
 }
@@ -391,6 +405,7 @@ async function handleMessage(msg: TelegramMessage): Promise<void> {
   const chatId = msg.chat.id;
   const chatType = msg.chat.type;
   const text = msg.text?.trim();
+  const userId = msg.from?.id;
 
   // Restrict customer interface to private chats initially
   if (chatType !== 'private') {
@@ -399,6 +414,55 @@ async function handleMessage(msg: TelegramMessage): Promise<void> {
 
   const chatIdStr = String(chatId);
   const session = await getSession(chatIdStr);
+
+  // --- Admin Commands ---
+  if (text === '/admin' || text === '/inquiries' || text === '/stats') {
+    if (!isAdminUser(userId)) {
+      await sendTelegramMessage(
+        chatId,
+        '⛔ <b>Access Denied</b>\n\nYou are not authorized to use MWD Bot Admin commands.'
+      );
+      return;
+    }
+
+    try {
+      if (text === '/stats') {
+        const [{ value: totalInquiries }] = await db.select({ value: count() }).from(inquiries);
+        await sendTelegramMessage(
+          chatId,
+          `<b>📊 MWD Admin Stats</b>\n\nTotal Inquiries: <b>${totalInquiries}</b>\nSystem Status: <b>Online</b>`
+        );
+        return;
+      }
+
+      // /admin or /inquiries - show 5 recent inquiries
+      const recentInquiries = await db
+        .select()
+        .from(inquiries)
+        .orderBy(desc(inquiries.createdAt))
+        .limit(5);
+
+      if (recentInquiries.length === 0) {
+        await sendTelegramMessage(chatId, '<b>🔐 MWD Admin Panel</b>\n\nNo client inquiries submitted yet.');
+        return;
+      }
+
+      let adminMsg = '<b>🔐 MWD Admin Panel — Recent Inquiries</b>\n\n';
+      recentInquiries.forEach((inq, idx) => {
+        adminMsg += `${idx + 1}. <b>${inq.reference}</b> | ${inq.name}\n`;
+        adminMsg += `   • Service: ${inq.serviceOfInterest || 'N/A'}\n`;
+        adminMsg += `   • Contact: ${inq.email} (${inq.telegram || 'No handle'})\n`;
+        adminMsg += `   • Status: <code>${inq.status}</code>\n\n`;
+      });
+
+      await sendTelegramMessage(chatId, adminMsg);
+      return;
+    } catch (error) {
+      console.error('Error handling Telegram admin command:', error);
+      await sendTelegramMessage(chatId, '⚠️ Error executing admin command.');
+      return;
+    }
+  }
 
   if (text === '/start' || text === '/help') {
     await clearSession(chatIdStr);
