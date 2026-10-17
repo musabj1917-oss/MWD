@@ -4,6 +4,9 @@ import { telegramProcessedUpdates, telegramSessions, inquiries } from '@/db/sche
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { botText } from '@/lib/bot-content';
+import { getCustomFlow } from '@/lib/bot-flow';
+import type { Flow, FlowNode } from '@/lib/bot-flow-types';
+import { siteUrl } from '@/lib/site';
 
 // --- Telegram API Types ---
 export interface TelegramUser {
@@ -138,13 +141,15 @@ async function isDuplicateUpdate(updateId: number): Promise<boolean> {
 }
 
 // --- Session Helper ---
-type InquiryStep = 'idle' | 'awaiting_service' | 'awaiting_details' | 'awaiting_description';
+// Built-in bot uses the first four steps; the flow builder uses 'ask:<blockId>'
+type InquiryStep = string;
 
 interface SessionState {
   step: InquiryStep;
   serviceOfInterest?: string;
   name?: string;
   contact?: string;
+  vars?: Record<string, string>;
 }
 
 async function getSession(chatId: string): Promise<SessionState> {
@@ -256,6 +261,20 @@ export async function processTelegramUpdate(update: TelegramUpdate): Promise<{ s
   // Deduplication check
   if (await isDuplicateUpdate(update.update_id)) {
     return { status: 200, body: 'Duplicate update ignored' };
+  }
+
+  // A flow saved in /admin/bot/flow replaces the built-in conversation
+  const flow = await getCustomFlow();
+  if (flow) {
+    if (update.callback_query) {
+      await handleFlowCallback(update.callback_query, flow);
+      return { status: 200, body: 'Callback processed' };
+    }
+    if (update.message) {
+      await handleFlowMessage(update.message, flow);
+      return { status: 200, body: 'Message processed' };
+    }
+    return { status: 200, body: 'Update type unhandled' };
   }
 
   // Handle Callback Queries
@@ -478,4 +497,105 @@ async function handleMessage(msg: TelegramMessage): Promise<void> {
     await botText('fallback'),
     MAIN_MENU_KEYBOARD
   );
+}
+
+// --- Flow builder runtime ---
+const escapeTg = (v: string) => v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+function fillVars(text: string, vars: Record<string, string>): string {
+  const all: Record<string, string> = { site: siteUrl, service: '', reference: '', ...vars };
+  return text.replace(/\{(\w+)\}/g, (m, name) => (name in all ? escapeTg(all[name]) : m));
+}
+
+async function sendFlowNode(chatId: number, node: FlowNode, vars: Record<string, string>): Promise<void> {
+  const keyboard: TelegramInlineKeyboardMarkup | undefined = node.buttons.length
+    ? {
+        inline_keyboard: node.buttons.map((b, i) => [
+          b.kind === 'url' ? { text: b.label, url: b.url } : { text: b.label, callback_data: `b:${node.id}:${i}` },
+        ]),
+      }
+    : undefined;
+  await sendTelegramMessage(chatId, fillVars(node.text, vars), keyboard);
+}
+
+async function enterFlowNode(chatId: number, flow: Flow, nodeId: string, session: SessionState, from?: TelegramUser): Promise<void> {
+  const node = flow.nodes.find((n) => n.id === nodeId) ?? flow.nodes.find((n) => n.id === flow.start);
+  if (!node) return;
+  const chatIdStr = String(chatId);
+  const vars = { ...(session.vars ?? {}) };
+
+  if (node.type === 'ask') {
+    await setSession(chatIdStr, { step: `ask:${node.id}`, vars });
+    await sendFlowNode(chatId, node, vars);
+    return;
+  }
+
+  if (node.type === 'save') {
+    const reference = `REF-TG-${nanoid(6).toUpperCase()}`;
+    const { name, contact } = parseNameAndContact(vars.details ?? '');
+    try {
+      await db.insert(inquiries).values({
+        reference,
+        name: name || from?.first_name || 'Telegram User',
+        email: contact.includes('@') ? contact : `${chatId}@telegram.mwd`,
+        phone: contact && !contact.includes('@') ? contact : null,
+        telegram: from?.username ? `@${from.username}` : `ChatID:${chatId}`,
+        serviceOfInterest: vars.service || 'General Inquiry',
+        projectDescription: vars.description || '(no description)',
+        status: 'new',
+      });
+    } catch (error) {
+      console.error('Error saving Telegram inquiry to database:', error);
+      await sendTelegramMessage(chatId, '⚠️ An unexpected error occurred while saving your request. Please try again in a moment.');
+      return;
+    }
+    await clearSession(chatIdStr);
+    await sendFlowNode(chatId, node, { ...vars, reference });
+    return;
+  }
+
+  await setSession(chatIdStr, { step: 'idle', vars });
+  await sendFlowNode(chatId, node, vars);
+}
+
+async function handleFlowCallback(cb: TelegramCallbackQuery, flow: Flow): Promise<void> {
+  await answerCallbackQuery(cb.id);
+  const chatId = cb.message?.chat.id;
+  if (!chatId || cb.message?.chat.type !== 'private' || !cb.data) return;
+
+  const [kind, nodeId, idx] = cb.data.split(':');
+  if (kind !== 'b') return;
+  const node = flow.nodes.find((n) => n.id === nodeId);
+  const button = node?.buttons[Number(idx)];
+  if (!button || button.kind !== 'goto' || !button.target) return;
+
+  const session = await getSession(String(chatId));
+  const vars = { ...(session.vars ?? {}) };
+  if (button.set) vars.service = button.set;
+  await enterFlowNode(chatId, flow, button.target, { step: 'idle', vars }, cb.from);
+}
+
+async function handleFlowMessage(msg: TelegramMessage, flow: Flow): Promise<void> {
+  if (msg.chat.type !== 'private') return;
+  const chatId = msg.chat.id;
+  const chatIdStr = String(chatId);
+  const text = msg.text?.trim();
+  const session = await getSession(chatIdStr);
+
+  if (text === '/start' || text === '/help') {
+    await clearSession(chatIdStr);
+    await enterFlowNode(chatId, flow, flow.start, { step: 'idle' }, msg.from);
+    return;
+  }
+
+  if (session.step.startsWith('ask:') && text) {
+    const node = flow.nodes.find((n) => n.id === session.step.slice(4));
+    if (node && node.type === 'ask') {
+      const vars = { ...(session.vars ?? {}), [node.field ?? 'description']: text.slice(0, 4000) };
+      await enterFlowNode(chatId, flow, node.next ?? flow.start, { step: 'idle', vars }, msg.from);
+      return;
+    }
+  }
+
+  await enterFlowNode(chatId, flow, flow.start, { step: 'idle', vars: session.vars }, msg.from);
 }

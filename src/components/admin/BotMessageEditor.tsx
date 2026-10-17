@@ -3,16 +3,8 @@
 import { useActionState, useMemo, useRef, useState } from 'react';
 import { Bold, Code, Italic, RotateCcw } from 'lucide-react';
 import { resetBotMessage, saveBotMessage, type BotMessageState } from '@/server/actions/admin';
-import { BOT_DEFAULTS, BOT_MAX_LENGTH, PLACEHOLDER_SAMPLES, type BotField } from '@/lib/bot-fields';
+import { BOT_DEFAULTS, BOT_MAX_LENGTH, renderTelegramPreview, type BotField } from '@/lib/bot-fields';
 import { inputClass } from '@/components/admin/ui';
-
-// Escape everything, then turn the few tags Telegram supports back into real tags.
-function renderPreview(text: string) {
-  let html = text.replace(/&(?!(amp|lt|gt|quot);)/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  html = html.replace(/&lt;(\/?)(b|i|u|s|code|pre)&gt;/g, '<$1$2>');
-  html = html.replace(/\{(\w+)\}/g, (m, name) => PLACEHOLDER_SAMPLES[name] ?? m);
-  return html.replace(/<code>/g, '<code style="background:#e8eef3;padding:0 3px;border-radius:3px">');
-}
 
 export function BotMessageEditor({ field, initial, custom }: { field: BotField; initial: string; custom: boolean }) {
   const [value, setValue] = useState(initial);
@@ -26,7 +18,7 @@ export function BotMessageEditor({ field, initial, custom }: { field: BotField; 
     { ok: false, message: '' },
   );
   const ref = useRef<HTMLTextAreaElement>(null);
-  const preview = useMemo(() => renderPreview(value), [value]);
+  const preview = useMemo(() => renderTelegramPreview(value), [value]);
   const changed = value.trim() !== initial.trim();
   const status = resetState.message ? resetState : saveState;
 

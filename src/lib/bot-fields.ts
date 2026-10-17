@@ -115,14 +115,12 @@ export const PLACEHOLDER_SAMPLES: Record<string, string> = {
 const TAGS = ['b', 'i', 'u', 's', 'code', 'pre'];
 
 /** Returns an error message, or null when the text is safe to send with parse_mode HTML. */
-export function validateBotText(key: string, text: string): string | null {
-  const field = BOT_FIELDS.find((f) => f.key === key);
-  if (!field) return 'Unknown message.';
+export function validateTelegramHtml(text: string, vars: string[]): string | null {
   const t = text.trim();
   if (!t) return 'The message cannot be empty.';
   if (t.length > BOT_MAX_LENGTH) return `Too long (max ${BOT_MAX_LENGTH} characters).`;
 
-  const allowedVars = new Set(['site', ...field.vars]);
+  const allowedVars = new Set(vars);
   for (const m of t.matchAll(/\{(\w+)\}/g)) {
     if (!allowedVars.has(m[1])) return `{${m[1]}} is not available here. You can use: ${[...allowedVars].map((v) => `{${v}}`).join(', ')}.`;
   }
@@ -140,4 +138,19 @@ export function validateBotText(key: string, text: string): string | null {
   if (/[<>]/.test(stripped)) return 'Use &lt; and &gt; to show the < and > characters. Only b, i, u, s, code and pre tags are allowed.';
   if (/&(?!(amp|lt|gt|quot);)/.test(stripped)) return 'Write & as &amp;.';
   return null;
+}
+
+export function validateBotText(key: string, text: string): string | null {
+  const field = BOT_FIELDS.find((f) => f.key === key);
+  if (!field) return 'Unknown message.';
+  return validateTelegramHtml(text, ['site', ...field.vars]);
+}
+
+/** Turns Telegram-style HTML into safe HTML for the admin previews. */
+export function renderTelegramPreview(text: string, vars: Record<string, string> = {}): string {
+  const all = { ...PLACEHOLDER_SAMPLES, ...vars };
+  let html = text.replace(/&(?!(amp|lt|gt|quot);)/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  html = html.replace(/&lt;(\/?)(b|i|u|s|code|pre)&gt;/g, '<$1$2>');
+  html = html.replace(/\{(\w+)\}/g, (m, name) => (name in all ? all[name].replace(/&/g, '&amp;').replace(/</g, '&lt;') : m));
+  return html.replace(/<code>/g, '<code style="background:#e8eef3;padding:0 3px;border-radius:3px">');
 }

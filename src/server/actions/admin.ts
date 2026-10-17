@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { db } from '@/db';
 import { botMessages, inquiries, inquiryNotes, portfolioProjects } from '@/db/schema';
 import { BOT_DEFAULTS, validateBotText } from '@/lib/bot-fields';
+import { validateFlow } from '@/lib/bot-flow-types';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -185,4 +186,33 @@ export async function resetBotMessage(key: string, _prev: BotMessageState): Prom
   await db.delete(botMessages).where(eq(botMessages.key, key));
   revalidatePath('/admin/bot');
   return { ok: true, message: 'Restored the original text.' };
+}
+
+export async function saveFlow(_prev: BotMessageState, formData: FormData): Promise<BotMessageState> {
+  await enforceAdmin();
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(String(formData.get('flow') ?? ''));
+  } catch {
+    return { ok: false, message: 'Could not read the flow. Please try again.' };
+  }
+  const result = validateFlow(parsed);
+  if ('error' in result) return { ok: false, message: result.error };
+
+  const value = JSON.stringify(result.flow);
+  await db
+    .insert(botMessages)
+    .values({ key: 'flow', value })
+    .onConflictDoUpdate({ target: botMessages.key, set: { value, updatedAt: new Date() } });
+  revalidatePath('/admin/bot');
+  revalidatePath('/admin/bot/flow');
+  return { ok: true, message: 'Saved. The bot now follows this flow.' };
+}
+
+export async function resetFlow(_prev: BotMessageState): Promise<BotMessageState> {
+  await enforceAdmin();
+  await db.delete(botMessages).where(eq(botMessages.key, 'flow'));
+  revalidatePath('/admin/bot');
+  revalidatePath('/admin/bot/flow');
+  return { ok: true, message: 'Back to the built-in bot.' };
 }
