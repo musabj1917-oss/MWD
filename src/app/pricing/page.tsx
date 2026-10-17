@@ -1,64 +1,52 @@
 import Link from 'next/link';
-import { db } from '@/db';
-import { packages } from '@/db/schema';
-import { eq } from 'drizzle-orm';
-
-export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Pricing | MWD Site',
-  description: 'View our transparent pricing and service packages for digital solutions.',
+  title: 'Pricing — MWD',
+  description: 'Flexible project packages and custom quotes for MWD services.',
 };
 
-
-export default async function PricingPage() {
-  const allPackages = await db.select().from(packages).where(eq(packages.published, true));
+export default function PricingPage() {
+  const packages = [
+    {
+      name: 'Business Launch',
+      description: 'For founders who need a polished, conversion-ready website without the complexity of a full custom build.',
+      price: 'Custom quote',
+    },
+    {
+      name: 'Growth Store',
+      description: 'For businesses that need storefront functionality, catalog structure, and a clear sales path.',
+      price: 'Custom quote',
+    },
+    {
+      name: 'Menu System',
+      description: 'For restaurants and cafes that want a modern digital menu with easy content changes and mobile-first use.',
+      price: 'Custom quote',
+    },
+  ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="text-center mb-16">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Transparent Pricing</h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Choose the right package for your business needs. No hidden fees.
-        </p>
-      </div>
+    <main className="container py-20">
+      <header className="max-w-3xl mb-12">
+        <p className="text-red-600 font-semibold uppercase tracking-[0.2em] text-xs">Pricing</p>
+        <h1 className="text-4xl md:text-5xl font-bold mt-4">Clear scope. Fair pricing. No guesswork.</h1>
+      </header>
 
-      {allPackages.length === 0 ? (
-        <div className="text-center py-20 bg-gray-50 rounded-lg border">
-          <h2 className="text-2xl font-semibold text-gray-600 mb-2">Packages Coming Soon</h2>
-          <p className="text-gray-500 mb-6">We are currently structuring our packages. Please request a custom quote.</p>
-          <Link href="/request-quote" className="bg-blue-600 text-white px-6 py-3 rounded font-semibold hover:bg-blue-700">Get a Custom Quote</Link>
-        </div>
-      ) : (
-        <div className="grid md:grid-cols-3 gap-8">
-          {allPackages.map((pkg: any) => (
-            <div key={pkg.id} className="bg-white border rounded-lg p-8 shadow-sm flex flex-col">
-              <h3 className="text-2xl font-bold mb-2">{pkg.name}</h3>
-              <p className="text-gray-600 mb-6 h-12">{pkg.description}</p>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">${(pkg.price / 100).toFixed(2)}</span>
-                <span className="text-gray-500 ml-2">/ {pkg.billingType}</span>
-              </div>
-              <ul className="mb-8 space-y-3 flex-grow text-gray-700">
-                <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> Standard features included</li>
-                <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> Professional design</li>
-                <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> Basic SEO setup</li>
-              </ul>
-              <Link href={`/request-quote?package=${pkg.slug}`} className="block w-full text-center bg-blue-600 text-white px-6 py-3 rounded font-semibold hover:bg-blue-700 mt-auto">
-                Get Started
-              </Link>
-            </div>
-          ))}
-        </div>
-      )}
+      <section className="grid md:grid-cols-3 gap-6 mb-12">
+        {packages.map((pkg) => (
+          <article key={pkg.name} className="border p-8">
+            <h2 className="text-2xl font-semibold mb-3">{pkg.name}</h2>
+            <p className="text-gray-700 mb-6">{pkg.description}</p>
+            <div className="text-3xl font-bold mb-6">{pkg.price}</div>
+            <Link href="/request-quote" className="btn-primary">Request this</Link>
+          </article>
+        ))}
+      </section>
 
-       <div className="mt-20 text-center">
-            <h2 className="text-2xl font-bold mb-4">Need something custom?</h2>
-            <p className="text-gray-600 mb-8">We offer tailored solutions for complex projects.</p>
-             <Link href="/request-quote" className="border border-blue-600 text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition">
-                Contact Sales
-             </Link>
-       </div>
-    </div>
+      <section className="border p-8 bg-gray-50">
+        <h2 className="text-2xl font-semibold mb-3">Need a tailored quote?</h2>
+        <p className="text-gray-700 mb-6">Large projects, multi-page sites, complex stores, or custom integrations may require a tailored scope and timeline. We can cover that with a short discovery call.</p>
+        <Link href="/request-quote" className="btn-primary">Discuss your project</Link>
+      </section>
+    </main>
   );
 }

@@ -1,34 +1,28 @@
 export const metadata = {
-  title: 'Privacy Policy | MWD Site',
-  description: 'Privacy Policy for MWD Site.',
+  title: 'Privacy Policy — MWD',
+  description: 'Privacy Policy for MWD — Web Design & Digital Solutions.',
 };
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 prose text-gray-900">
-      <h1 className="text-4xl font-bold mb-8 text-gray-900">Privacy Policy</h1>
-      <p><em>Last updated: {new Date().toLocaleDateString()}</em></p>
-      
-      <h2>1. Introduction</h2>
-      <p>
-        [Placeholder: Welcome to MWD Site. We respect your privacy and are committed to protecting your personal data. 
-        This privacy policy will inform you as to how we look after your personal data when you visit our website.]
-      </p>
+    <main className="container py-20 max-w-3xl">
+      <h1 className="text-4xl font-bold mb-6">Privacy Policy</h1>
+      <p className="text-gray-700 mb-6">We respect your privacy and only collect information needed to respond to enquiries, provide our services, and improve the experience on our site.</p>
 
-      <h2>2. The data we collect about you</h2>
-      <p>
-        [Placeholder: We may collect, use, store and transfer different kinds of personal data about you which we have grouped together follows:
-        Identity Data, Contact Data, Technical Data, Usage Data.]
-      </p>
-
-      <h2>3. How we use your personal data</h2>
-      <p>
-        [Placeholder: We will only use your personal data when the law allows us to. Most commonly, we will use your personal data to perform the contract we are about to enter into or have entered into with you.]
-      </p>
-
-      <p className="mt-8 text-sm text-gray-700">
-        Note: This is a placeholder policy and must be reviewed by legal counsel before use in production.
-      </p>
-    </div>
+      <section className="space-y-6 text-gray-700">
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Information we collect</h2>
+          <p>We may collect your name, email address, project details, and any information you choose to share through our contact or quote forms.</p>
+        </div>
+        <div>
+          <h2 className="text-xl font-semibold mb-2">How we use it</h2>
+          <p>We use this information to understand your project, respond to enquiries, and manage communications related to service requests.</p>
+        </div>
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Sharing information</h2>
+          <p>We do not sell personal information. We only share it when necessary to deliver our service or comply with applicable legal obligations.</p>
+        </div>
+      </section>
+    </main>
   );
 }

@@ -1,0 +1,20 @@
+MWD — Web Design & Digital Solutions
+
+Website: https://mwd-xm8f.vercel.app/
+
+What we do:
+- Website design and development
+- E-commerce stores (dropshipping and custom cart integrations)
+- Digital menus for restaurants and cafes
+- Ongoing maintenance, performance optimization, and SEO
+
+Key pages:
+- Home: https://mwd-xm8f.vercel.app/
+- Services: https://mwd-xm8f.vercel.app/services
+- Portfolio: https://mwd-xm8f.vercel.app/portfolio
+- Pricing / Request a quote: https://mwd-xm8f.vercel.app/request-quote
+- Contact: https://mwd-xm8f.vercel.app/contact
+
+Notes for AI / crawlers:
+- This site uses semantic HTML and structured JSON-LD for Organization and WebSite.
+- For verified project case studies, see /portfolio and individual project pages.

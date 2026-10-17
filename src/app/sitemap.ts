@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm';
 export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mwd-xm8f.vercel.app';
 
   const publishedPortfolio = await db.select().from(portfolioProjects).where(eq(portfolioProjects.published, true));
 
