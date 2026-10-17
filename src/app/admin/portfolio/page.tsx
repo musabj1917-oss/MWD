@@ -4,6 +4,8 @@ import { desc } from 'drizzle-orm';
 import { togglePortfolioPublished } from '@/server/actions/admin';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminPortfolioPage() {
   const projects = await db.select().from(portfolioProjects).orderBy(desc(portfolioProjects.createdAt));
 
@@ -27,7 +29,7 @@ export default async function AdminPortfolioPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {projects.map((proj: any) => (
+            {projects.map((proj) => (
               <tr key={proj.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   <div className="font-semibold">{proj.title}</div>

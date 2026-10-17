@@ -1,22 +1,16 @@
 import { MetadataRoute } from 'next';
 import { db } from '@/db';
-import { services, portfolioProjects, faqs } from '@/db/schema';
+import { portfolioProjects } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+
+export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
-  const publishedServices = await db.select().from(services).where(eq(services.published, true));
   const publishedPortfolio = await db.select().from(portfolioProjects).where(eq(portfolioProjects.published, true));
 
-  const serviceUrls = publishedServices.map((service: any) => ({
-    url: `${baseUrl}/services/${service.slug}`,
-    lastModified: new Date(service.createdAt),
-    changeFrequency: 'monthly' as const,
-    priority: 0.8,
-  }));
-
-  const portfolioUrls = publishedPortfolio.map((project: any) => ({
+  const portfolioUrls = publishedPortfolio.map((project) => ({
     url: `${baseUrl}/portfolio/${project.slug}`,
     lastModified: new Date(project.createdAt),
     changeFrequency: 'monthly' as const,
@@ -26,6 +20,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = [
     '',
     '/services',
+    '/services/website-development',
+    '/services/ecommerce',
+    '/services/digital-menus',
     '/portfolio',
     '/pricing',
     '/about',
@@ -39,5 +36,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: route === '' ? 1.0 : 0.8,
   }));
 
-  return [...staticRoutes, ...serviceUrls, ...portfolioUrls] as any;
+  return [...staticRoutes, ...portfolioUrls];
 }

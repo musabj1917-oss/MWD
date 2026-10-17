@@ -1,7 +1,8 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
-import { submitQuoteRequest } from '@/server/actions/public';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { submitQuoteRequest, type QuoteState } from '@/server/actions/public';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -17,7 +18,7 @@ function SubmitButton() {
 }
 
 export default function RequestQuotePage() {
-  const [state, formAction] = useFormState(submitQuoteRequest, { success: false, message: '' });
+  const [state, formAction] = useActionState<QuoteState, FormData>(submitQuoteRequest, { success: false, message: '' });
 
   if (state.success) {
       return (
@@ -25,7 +26,7 @@ export default function RequestQuotePage() {
               <div className="bg-green-50 text-green-800 p-8 rounded-lg border border-green-200">
                   <h1 className="text-3xl font-bold mb-4">Request Received</h1>
                   <p className="text-lg mb-2">{state.message}</p>
-                  <p className="text-sm text-green-700">A confirmation email has been sent to your address.</p>
+                  <p className="text-sm text-green-700">If you provided a valid email, a confirmation will arrive shortly.</p>
               </div>
           </div>
       )
@@ -34,7 +35,7 @@ export default function RequestQuotePage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <h1 className="text-4xl font-bold mb-6 text-center text-gray-900">Request a Quote</h1>
-      <p className="text-center text-gray-600 mb-10">Fill out the form below and we'll get back to you with a detailed proposal and pricing.</p>
+      <p className="text-center text-gray-600 mb-10">Fill out the form below and we&apos;ll get back to you with a detailed proposal and pricing.</p>
       
       {state.message && !state.success && (
           <div className="mb-6 p-4 bg-red-50 text-red-700 border border-red-200 rounded">
@@ -47,12 +48,12 @@ export default function RequestQuotePage() {
             <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
             <input type="text" id="name" name="name" required className="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border" />
-            {(state.errors as any)?.name && <p className="mt-1 text-sm text-red-600">{(state.errors as any)?.name[0]}</p>}
+            {state.errors?.name && <p className="mt-1 text-sm text-red-600">{state.errors?.name?.[0]}</p>}
             </div>
             <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
             <input type="email" id="email" name="email" required className="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border" />
-            {(state.errors as any)?.email && <p className="mt-1 text-sm text-red-600">{(state.errors as any)?.email[0]}</p>}
+            {state.errors?.email && <p className="mt-1 text-sm text-red-600">{state.errors?.email?.[0]}</p>}
             </div>
         </div>
 
@@ -86,8 +87,10 @@ export default function RequestQuotePage() {
         <div>
           <label htmlFor="projectDescription" className="block text-sm font-medium text-gray-700 mb-1">Project Description *</label>
           <textarea id="projectDescription" name="projectDescription" rows={5} required className="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border"></textarea>
-          {(state.errors as any)?.projectDescription && <p className="mt-1 text-sm text-red-600">{(state.errors as any)?.projectDescription[0]}</p>}
+          {state.errors?.projectDescription && <p className="mt-1 text-sm text-red-600">{state.errors?.projectDescription?.[0]}</p>}
         </div>
+
+        <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
 
         <SubmitButton />
       </form>

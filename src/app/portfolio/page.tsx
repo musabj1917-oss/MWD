@@ -3,6 +3,8 @@ import { db } from '@/db';
 import { portfolioProjects } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Our Portfolio | MWD Site',
   description: 'Explore our latest web development, e-commerce, and digital menu projects.',

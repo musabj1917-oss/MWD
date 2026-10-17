@@ -2,9 +2,11 @@ import { db } from '@/db';
 import { inquiries, portfolioProjects } from '@/db/schema';
 import { sql } from 'drizzle-orm';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminDashboard() {
-  const inquiryCountResult = await db.select({ count: sql<number>`count(*)` }).from(inquiries);
-  const portfolioCountResult = await db.select({ count: sql<number>`count(*)` }).from(portfolioProjects);
+  const inquiryCountResult = await db.select({ count: sql<number>`count(*)::int` }).from(inquiries);
+  const portfolioCountResult = await db.select({ count: sql<number>`count(*)::int` }).from(portfolioProjects);
 
   const inquiryCount = inquiryCountResult[0].count;
   const portfolioCount = portfolioCountResult[0].count;

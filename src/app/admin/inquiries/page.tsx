@@ -3,6 +3,8 @@ import { inquiries } from '@/db/schema';
 import { desc } from 'drizzle-orm';
 import { updateInquiryStatus } from '@/server/actions/admin';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminInquiriesPage() {
   const allInquiries = await db.select().from(inquiries).orderBy(desc(inquiries.createdAt));
 
@@ -22,7 +24,7 @@ export default async function AdminInquiriesPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {allInquiries.map((inq: any) => (
+            {allInquiries.map((inq) => (
               <tr key={inq.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{inq.reference}</td>
                 <td className="px-6 py-4 text-sm text-gray-500">
@@ -43,6 +45,7 @@ export default async function AdminInquiriesPage() {
                         <option value="completed">Completed</option>
                         <option value="rejected">Rejected</option>
                      </select>
+                     <button type="submit" className="ml-2 px-2 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700">Save</button>
                    </form>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

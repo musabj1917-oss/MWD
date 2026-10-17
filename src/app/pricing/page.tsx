@@ -3,6 +3,8 @@ import { db } from '@/db';
 import { packages } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Pricing | MWD Site',
   description: 'View our transparent pricing and service packages for digital solutions.',

@@ -55,12 +55,13 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user, profile }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role || 'user'; 
+        token.role = user.role || 'user';
       }
       if (token.email) {
+          // Re-read role from DB so demotions take effect without re-login
           const dbUser = await db.select({ role: users.role }).from(users).where(eq(users.email, token.email)).limit(1);
           if (dbUser.length > 0) {
               token.role = dbUser[0].role;
@@ -70,12 +71,12 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.id;
-        (session.user as any).role = token.role;
+        session.user.id = token.id;
+        session.user.role = token.role;
       }
       return session;
     },
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
         if (account?.provider === 'google') {
             const email = user.email;
             if (!email) return false;

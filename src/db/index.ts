@@ -2,28 +2,17 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
 
-const connectionString = process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/mwd';
+const isBuild = process.env.NEXT_PHASE === 'phase-production-build';
+const connectionString = process.env.DATABASE_URL;
 
-const client = postgres(connectionString);
+if (!connectionString && process.env.NODE_ENV === 'production' && !isBuild) {
+  throw new Error('DATABASE_URL is not set');
+}
 
-// Create a mock db ONLY for the next build phase to prevent it from crashing without a DB
-// Real runtime will throw if the connection fails
-const createMockDb = () => {
-  return new Proxy({}, {
-    get: (target, prop) => {
-        if (prop === 'select') return () => ({ from: () => {
-            const arr = [{count: 0, createdAt: new Date()}];
-            (arr as any).where = () => arr;
-            (arr as any).orderBy = () => arr;
-            (arr as any).limit = () => arr;
-            return arr;
-        } });
-        if (prop === 'insert') return () => ({ values: () => ({ returning: () => [] }) });
-        if (prop === 'update') return () => ({ set: () => ({ where: () => ({}) }) });
-        if (prop === 'delete') return () => ({ where: () => ({}) });
-        return (...args: any) => [];
-    }
-  }) as any;
-};
+// prepare:false keeps this compatible with pooled connections (Neon, pgbouncer)
+const client = postgres(
+  connectionString || 'postgres://postgres:postgres@localhost:5432/mwd',
+  { prepare: false, max: process.env.NODE_ENV === 'production' ? 1 : 10 }
+);
 
-export const db = process.env.DATABASE_URL ? drizzle(client, { schema }) : createMockDb();
+export const db = drizzle(client, { schema });

@@ -2,6 +2,8 @@ import { db } from '@/db';
 import { faqs } from '@/db/schema';
 import { eq, asc } from 'drizzle-orm';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Frequently Asked Questions | MWD Site',
   description: 'Find answers to common questions about our web development and digital services.',

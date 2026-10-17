@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   // Handle the event
   try {
     switch (event.type) {
-      case 'checkout.session.completed':
+      case 'checkout.session.completed': {
         const session = event.data.object;
         const orderReference = session.client_reference_id;
         
@@ -42,6 +42,7 @@ export async function POST(req: Request) {
            console.log(`Order ${orderReference} marked as paid.`);
         }
         break;
+      }
       // ... handle other event types
       default:
         console.log(`Unhandled event type ${event.type}`);

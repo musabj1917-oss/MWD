@@ -4,9 +4,12 @@ import { eq, and } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const project = await db.select().from(portfolioProjects).where(and(eq(portfolioProjects.slug, params.slug), eq(portfolioProjects.published, true))).limit(1);
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const project = await db.select().from(portfolioProjects).where(and(eq(portfolioProjects.slug, slug), eq(portfolioProjects.published, true))).limit(1);
   
   if (project.length === 0) {
     return { title: 'Project Not Found | MWD Site' };
@@ -18,8 +21,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function ProjectPage({ params }: { params: { slug: string } }) {
-  const projectResult = await db.select().from(portfolioProjects).where(and(eq(portfolioProjects.slug, params.slug), eq(portfolioProjects.published, true))).limit(1);
+export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const projectResult = await db.select().from(portfolioProjects).where(and(eq(portfolioProjects.slug, slug), eq(portfolioProjects.published, true))).limit(1);
 
   if (projectResult.length === 0) {
     notFound();
