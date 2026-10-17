@@ -118,3 +118,15 @@ export const inquiryAttachments = pgTable('inquiry_attachments', {
   data: bytea('data').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
+
+export const telegramProcessedUpdates = pgTable('telegram_processed_updates', {
+  updateId: text('update_id').primaryKey(),
+  processedAt: timestamp('processed_at').notNull().defaultNow(),
+});
+
+export const telegramSessions = pgTable('telegram_sessions', {
+  chatId: text('chat_id').primaryKey(),
+  step: text('step').notNull().default('idle'),
+  data: text('data'),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
