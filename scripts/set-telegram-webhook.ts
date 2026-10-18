@@ -3,7 +3,7 @@ import 'dotenv/config';
 async function setWebhook() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mwd-xm8f.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://musabwebdevelopment.vercel.app';
   const webhookUrl = `${baseUrl.replace(/\/$/, '')}/api/telegram/webhook`;
 
   if (!token) {

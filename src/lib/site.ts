@@ -12,7 +12,7 @@ export const SITE = {
 } as const;
 
 // Single source of truth for the public base URL (always has https://, never a trailing slash)
-const rawSiteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://mwd-xm8f.vercel.app').trim().replace(/\/+$/, '');
+const rawSiteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://musabwebdevelopment.vercel.app').trim().replace(/\/+$/, '');
 export const siteUrl = /^https?:\/\//i.test(rawSiteUrl) ? rawSiteUrl : `https://${rawSiteUrl}`;
 
 export const telHref = `tel:${SITE.phoneTel}`;
