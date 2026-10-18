@@ -315,31 +315,7 @@ export function parseNameAndContact(input: string): { name: string; contact: str
   return { name: (name || 'Telegram User').slice(0, 200), contact: found.trim() };
 }
 
-// --- How-to video ---
-// The video is stored in bot_messages under the key "howto_video": a Telegram file_id or a link.
-const HOWTO_KEY = 'howto_video';
-
-async function getHowToVideo(): Promise<string | null> {
-  try {
-    const [row] = await db.select().from(botMessages).where(eq(botMessages.key, HOWTO_KEY)).limit(1);
-    return row?.value?.trim() || null;
-  } catch (error) {
-    console.error('Could not load how-to video:', error instanceof Error ? error.message : error);
-    return null;
-  }
-}
-
-async function saveHowToVideo(value: string): Promise<void> {
-  await db
-    .insert(botMessages)
-    .values({ key: HOWTO_KEY, value })
-    .onConflictDoUpdate({ target: botMessages.key, set: { value, updatedAt: new Date() } });
-}
-
-async function removeHowToVideo(): Promise<void> {
-  await db.delete(botMessages).where(eq(botMessages.key, HOWTO_KEY));
-}
-
+// The tutorial is managed from the website admin and watched on the website homepage.
 async function sendHowTo(chatId: number): Promise<void> {
   const url = new URL('/#how-to-video', siteUrl).toString();
   await sendTelegramMessage(
@@ -347,73 +323,6 @@ async function sendHowTo(chatId: number): Promise<void> {
     '🎬 Watch the MWD how-to video on our website:',
     { inline_keyboard: [[{ text: '▶️ Open how-to video', url }], [{ text: '« Back to Main Menu', callback_data: 'menu_main' }]] }
   );
-}
-
-// Hidden admin flow: /admin <ADMIN_PASSWORD>, then send the video (or a link). Returns true when the update was handled.
-async function handleHowToAndAdmin(msg: TelegramMessage): Promise<boolean> {
-  if (msg.chat.type !== 'private') return false;
-  const chatId = msg.chat.id;
-  const chatIdStr = String(chatId);
-  const text = msg.text?.trim();
-  const fileId = msg.video?.file_id ?? (msg.document?.mime_type?.startsWith('video/') ? msg.document.file_id : undefined);
-
-  if (text === '/howto') {
-    await sendHowTo(chatId);
-    return true;
-  }
-
-  if (text && /^\/admin(\s|$)/.test(text)) {
-    // Remove the message so the password does not stay in the chat
-    await deleteTelegramMessage(chatId, msg.message_id);
-    const password = text.replace(/^\/admin\s*/, '');
-    if (!verifyTelegramSecret(password, process.env.ADMIN_PASSWORD)) {
-      await sendTelegramMessage(chatId, 'Wrong password.');
-      return true;
-    }
-    await setSession(chatIdStr, { step: 'admin_video' });
-    await sendTelegramMessage(
-      chatId,
-      '<b>Admin mode</b>\n\nSend me the how-to video now, or paste a video link (https://...).\n\n/remove - delete the current video\n/cancel - leave admin mode'
-    );
-    return true;
-  }
-
-  if (!text && !fileId) return false;
-  const session = await getSession(chatIdStr);
-  if (session.step !== 'admin_video') return false;
-
-  if (text === '/start' || text === '/help') {
-    await clearSession(chatIdStr);
-    return false;
-  }
-  if (text === '/cancel') {
-    await clearSession(chatIdStr);
-    await sendTelegramMessage(chatId, 'Left admin mode.', MAIN_MENU_KEYBOARD);
-    return true;
-  }
-  if (text === '/remove') {
-    await removeHowToVideo();
-    await clearSession(chatIdStr);
-    await sendTelegramMessage(chatId, '✅ How-to video removed.', MAIN_MENU_KEYBOARD);
-    return true;
-  }
-
-  const value = fileId ?? (text && /^https?:\/\/\S+$/i.test(text) ? text : null);
-  if (!value) {
-    await sendTelegramMessage(chatId, 'Please send a video file or a link that starts with https://\n\n/cancel to stop.');
-    return true;
-  }
-
-  try {
-    await saveHowToVideo(value);
-  } catch (error) {
-    console.error('Could not save how-to video:', error instanceof Error ? error.message : error);
-    await sendTelegramMessage(chatId, '⚠️ Could not save the video. Please try again.');
-    return true;
-  }
-  await clearSession(chatIdStr);
-  await sendTelegramMessage(chatId, '✅ Video saved. Send /howto to test it.', MAIN_MENU_KEYBOARD);
-  return true;
 }
 
 // --- Bot Main Handler ---
