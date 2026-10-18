@@ -5,6 +5,7 @@ import { Footer } from '@/components/layout/Footer';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
 import { TelegramButton } from '@/components/TelegramButton';
 import { PublicOnly } from '@/components/PublicOnly';
+import { ScrollReveal } from '@/components/ScrollReveal';
 import { SITE, siteUrl, telegramHref } from '@/lib/site';
 
 const normalizedUrl = siteUrl;
@@ -47,6 +48,7 @@ export default function RootLayout({
         <main id="main" className="flex-grow">
           {children}
         </main>
+        <ScrollReveal />
         <PublicOnly>
           <Footer />
           <WhatsAppButton />
