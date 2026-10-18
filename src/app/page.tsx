@@ -1,11 +1,25 @@
 import Link from 'next/link';
+import { desc, eq } from 'drizzle-orm';
+import { db } from '@/db';
+import { portfolioProjects } from '@/db/schema';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'MWD — Web Design & Digital Solutions',
   description: 'MWD is a creative digital agency delivering high-end websites, e-commerce, and digital menus with editorial design and measurable results.',
 };
 
-export default function Home() {
+export default async function Home() {
+  // Latest published projects feed the hero image and the "Selected projects" cards
+  let projects: (typeof portfolioProjects.$inferSelect)[] = [];
+  try {
+    projects = await db.select().from(portfolioProjects).where(eq(portfolioProjects.published, true)).orderBy(desc(portfolioProjects.createdAt)).limit(3);
+  } catch (error) {
+    console.error('Could not load projects for the homepage:', error instanceof Error ? error.message : error);
+  }
+  const heroImage = projects.find((p) => p.coverImage)?.coverImage ?? null;
+
   return (
     <div>
       <header className="bg-white py-20">
@@ -24,9 +38,12 @@ export default function Home() {
           </div>
 
           <div className="lg:col-span-5">
-            <div className="hero-media bg-gray-100 h-72 md:h-96 flex items-center justify-center" aria-hidden>
-              {/* Replace with high-quality project image in /public/images when available */}
-              <div className="text-gray-400">Project imagery</div>
+            <div className="hero-media bg-gray-100 h-72 md:h-96 flex items-center justify-center overflow-hidden">
+              {heroImage ? (
+                <img src={heroImage} alt="Recent MWD project" className="w-full h-full object-cover" />
+              ) : (
+                <div className="text-gray-400" aria-hidden>Project imagery</div>
+              )}
             </div>
           </div>
         </div>
@@ -65,40 +82,26 @@ export default function Home() {
             <h2 className="text-3xl font-semibold mb-6">Selected projects</h2>
             <p className="text-gray-600 mb-8">A curated selection of recent work. Click any project to view details.</p>
 
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="border p-4">
-                <div className="h-40 bg-gray-100 mb-4" aria-hidden>
-                  <div className="text-gray-400 p-6">Project image</div>
-                </div>
-                <h4 className="font-semibold">Project name</h4>
-                <p className="text-sm text-gray-600">Brief description preserved from source data when available.</p>
-                <div className="mt-4">
-                  <Link href="/portfolio" className="text-red-600">View case study</Link>
-                </div>
+            {projects.length === 0 ? (
+              <p className="border bg-gray-50 p-8 text-gray-600">Projects are coming soon. <Link href="/request-quote" className="text-red-600">Request a quote</Link> to start yours.</p>
+            ) : (
+              <div className="grid md:grid-cols-3 gap-6">
+                {projects.map((project) => (
+                  <Link key={project.id} href={`/portfolio/${project.slug}`} className="group block border p-4 hover:border-red-600 transition">
+                    <div className="h-40 bg-gray-100 mb-4 overflow-hidden flex items-center justify-center text-gray-400">
+                      {project.coverImage ? (
+                        <img src={project.coverImage} alt={project.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <span>Project image</span>
+                      )}
+                    </div>
+                    <h4 className="font-semibold">{project.title}</h4>
+                    <p className="text-sm text-gray-600 line-clamp-3">{project.summary}</p>
+                    <span className="mt-4 inline-block text-red-600">View case study</span>
+                  </Link>
+                ))}
               </div>
-
-              <div className="border p-4">
-                <div className="h-40 bg-gray-100 mb-4" aria-hidden>
-                  <div className="text-gray-400 p-6">Project image</div>
-                </div>
-                <h4 className="font-semibold">Project name</h4>
-                <p className="text-sm text-gray-600">Brief description preserved from source data when available.</p>
-                <div className="mt-4">
-                  <Link href="/portfolio" className="text-red-600">View case study</Link>
-                </div>
-              </div>
-
-              <div className="border p-4">
-                <div className="h-40 bg-gray-100 mb-4" aria-hidden>
-                  <div className="text-gray-400 p-6">Project image</div>
-                </div>
-                <h4 className="font-semibold">Project name</h4>
-                <p className="text-sm text-gray-600">Brief description preserved from source data when available.</p>
-                <div className="mt-4">
-                  <Link href="/portfolio" className="text-red-600">View case study</Link>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </section>
 
