@@ -333,21 +333,19 @@ export function parseNameAndContact(input: string): { name: string; contact: str
 
 // The how-to video is set in the website admin (/admin/bot) or by the owner inside Telegram (/admin).
 // The saved value is a direct video link, another link, or a Telegram file_id.
-async function sendHowToVideoPart(chatId: number, video: string, caption: string): Promise<boolean> {
+async function sendHowToVideoPart(chatId: number, video: string): Promise<void> {
   const isUrl = /^https?:\/\//i.test(video);
   const isDirectFile = /\.(mp4|mov|webm)(\?.*)?$/i.test(video);
 
-  // A Telegram file_id or a direct video file plays right inside the chat
+  // A Telegram file_id or a direct video file plays right inside the chat, with no text
   if (!isUrl || isDirectFile) {
-    if (await sendTelegramVideo(chatId, video, caption)) return true;
+    if (await sendTelegramVideo(chatId, video)) return;
   }
 
-  // Any other link (YouTube, TikTok, ...) goes as text; Telegram shows a preview with a play button
+  // Any other link (YouTube, TikTok, ...) goes as the link only; Telegram shows a preview with a play button
   if (isUrl) {
-    const safe = video.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return callTelegramApi('sendMessage', { chat_id: chatId, text: `${caption}\n\n${safe}`, parse_mode: 'HTML' });
+    await callTelegramApi('sendMessage', { chat_id: chatId, text: video });
   }
-  return false;
 }
 
 async function sendConfiguredHowToVideo(chatId: number): Promise<void> {
@@ -362,27 +360,15 @@ async function sendConfiguredHowToVideo(chatId: number): Promise<void> {
     } catch {
       photos = [];
     }
-    if (!video && photos.length === 0) return;
 
-    const caption = await botText('howto_caption');
-    let captionUsed = false;
-
-    if (video) captionUsed = await sendHowToVideoPart(chatId, video, caption);
+    if (video) await sendHowToVideoPart(chatId, video);
 
     if (photos.length === 1) {
-      await callTelegramApi('sendPhoto', {
-        chat_id: chatId,
-        photo: photos[0],
-        ...(captionUsed ? {} : { caption, parse_mode: 'HTML' }),
-      });
+      await callTelegramApi('sendPhoto', { chat_id: chatId, photo: photos[0] });
     } else if (photos.length > 1) {
       await callTelegramApi('sendMediaGroup', {
         chat_id: chatId,
-        media: photos.map((id, i) => ({
-          type: 'photo',
-          media: id,
-          ...(i === 0 && !captionUsed ? { caption, parse_mode: 'HTML' } : {}),
-        })),
+        media: photos.map((id) => ({ type: 'photo', media: id })),
       });
     }
   } catch (error) {

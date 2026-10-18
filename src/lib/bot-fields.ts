@@ -16,7 +16,6 @@ export const BOT_DEFAULTS: Record<string, string> = {
   "step2": "<b>Service selected:</b> {service}\n\nStep 2 of 3: Please send us your <b>Name</b> and <b>Email or Phone number</b> (e.g. <code>John Doe, john@example.com</code>).",
   "step3": "Step 3 of 3: Please briefly describe your project goals, features needed, or budget timeline.",
   "inquiry_done": "<b>✅ Inquiry Received!</b>\n\nThank you for reaching out to MWD. Your inquiry reference is <code>{reference}</code>.\n\nOur team will review your project details and contact you shortly!\n\nWebsite: {site}",
-  "howto_caption": "<b>🎬 How to use the MWD bot</b>\n\nWatch this short video to see how to browse our services and request a website step by step.",
   "fallback": "I received your message. Please choose an option from the menu below or click <b>Request a Website</b> to start an inquiry:"
 };
 
@@ -96,12 +95,6 @@ export const BOT_FIELDS: BotField[] = [
     "vars": [
       "reference"
     ]
-  },
-  {
-    "key": "howto_caption",
-    "label": "How-to video caption",
-    "help": "Text shown with the how-to video (/howto or the How to use button). Max 1000 characters.",
-    "vars": []
   },
   {
     "key": "fallback",
