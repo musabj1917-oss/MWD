@@ -372,6 +372,14 @@ async function handleHowToAdmin(msg: TelegramMessage): Promise<boolean> {
       await sendTelegramMessage(chatId, 'Wrong password.');
       return true;
     }
+    try {
+      await db
+        .insert(botMessages)
+        .values({ key: 'admin_chat_id', value: chatIdStr })
+        .onConflictDoUpdate({ target: botMessages.key, set: { value: chatIdStr, updatedAt: new Date() } });
+    } catch (error) {
+      console.error('Could not save admin chat:', error instanceof Error ? error.message : error);
+    }
     await setSession(chatIdStr, { step: 'admin_video' });
     await sendTelegramMessage(
       chatId,

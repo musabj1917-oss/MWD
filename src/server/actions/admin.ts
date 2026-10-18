@@ -221,45 +221,14 @@ export async function resetFlow(_prev: BotMessageState): Promise<BotMessageState
 /** Save the Telegram how-to video URL from the website admin dashboard. */
 export type HowToVideoState = { ok: boolean; message: string };
 
-export async function saveHowToVideo(
-  _prev: HowToVideoState,
-  formData: FormData,
-): Promise<HowToVideoState> {
+export async function removeHowToVideo(_prev: HowToVideoState): Promise<HowToVideoState> {
   await enforceAdmin();
-  const raw = formData.get('removeVideo') === '1' ? '' : String(formData.get('videoUrl') ?? '').trim();
-  if (raw && raw.length > 2000) {
-    return { ok: false, message: 'The video URL is too long.' };
-  }
-  if (raw) {
-    let parsed: URL;
-    try {
-      parsed = new URL(raw);
-    } catch {
-      return { ok: false, message: 'Enter a valid public video URL.' };
-    }
-    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
-      return { ok: false, message: 'The video URL must use HTTPS or HTTP.' };
-    }
-    const host = parsed.hostname.toLowerCase();
-    const supported = /\.mp4$/i.test(parsed.pathname);
-    if (!supported) {
-      return { ok: false, message: 'Use a direct public MP4 video URL. YouTube/Vimeo page links cannot be sent as Telegram video files.' };
-    }
-  }
   try {
-    if (!raw) {
-      await db.delete(botMessages).where(eq(botMessages.key, 'howto_video'));
-    } else {
-      await db.insert(botMessages).values({ key: 'howto_video', value: raw })
-        .onConflictDoUpdate({
-          target: botMessages.key,
-          set: { value: raw, updatedAt: new Date() },
-        });
-    }
-    revalidatePath('/admin/bot');
-    return { ok: true, message: raw ? 'Telegram how-to video saved.' : 'Telegram how-to video removed.' };
+    await db.delete(botMessages).where(eq(botMessages.key, 'howto_video'));
+    revalidatePath('/admin/video');
+    return { ok: true, message: 'How-to video removed.' };
   } catch (error) {
-    console.error('Could not save Telegram how-to video:', error);
-    return { ok: false, message: 'Could not save the video. Please try again.' };
+    console.error('Could not remove Telegram how-to video:', error);
+    return { ok: false, message: 'Could not remove the video. Please try again.' };
   }
 }

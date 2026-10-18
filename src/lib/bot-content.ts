@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { botMessages } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { siteUrl } from '@/lib/site';
 import { BOT_DEFAULTS } from '@/lib/bot-fields';
 
@@ -9,7 +9,7 @@ export async function getBotContent(): Promise<{ content: Record<string, string>
   const content = { ...BOT_DEFAULTS };
   const custom = new Set<string>();
   try {
-    const rows = await db.select().from(botMessages);
+    const rows = await db.select().from(botMessages).where(inArray(botMessages.key, Object.keys(BOT_DEFAULTS)));
     for (const r of rows) {
       if (r.key in BOT_DEFAULTS) {
         content[r.key] = r.value;
