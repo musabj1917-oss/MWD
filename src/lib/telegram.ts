@@ -7,6 +7,8 @@ import { botText } from '@/lib/bot-content';
 import { getCustomFlow } from '@/lib/bot-flow';
 import type { Flow, FlowNode } from '@/lib/bot-flow-types';
 import { siteUrl } from '@/lib/site';
+import { sendEmail } from '@/lib/email';
+import { adminQuoteEmail, customerQuoteEmail, type QuoteEmailData } from '@/lib/email-templates';
 
 // --- Telegram API Types ---
 export interface TelegramUser {
@@ -127,6 +129,53 @@ export async function deleteTelegramMessage(chatId: number | string, messageId: 
 export async function removeTappedMessage(cb: TelegramCallbackQuery): Promise<void> {
   if (cb.message && cb.message.chat.type === 'private') {
     await deleteTelegramMessage(cb.message.chat.id, cb.message.message_id);
+  }
+}
+
+// --- Email notification (same emails the website form sends; best-effort, never breaks the bot) ---
+async function notifyAboutTelegramInquiry(i: {
+  id: number;
+  reference: string;
+  name: string;
+  contact?: string;
+  telegram: string;
+  service?: string | null;
+  description: string;
+}): Promise<void> {
+  try {
+    const realEmail = i.contact && i.contact.includes('@') ? i.contact : undefined;
+    const phone = i.contact && !i.contact.includes('@') ? i.contact : null;
+    const data: QuoteEmailData = {
+      reference: i.reference,
+      inquiryId: i.id,
+      name: i.name,
+      email: realEmail ?? '(via Telegram)',
+      phone,
+      telegram: i.telegram,
+      serviceOfInterest: i.service ?? null,
+      budgetRange: null,
+      timeline: null,
+      projectDescription: i.description,
+      photoCids: [],
+      photoCount: 0,
+      submittedAt: new Date(),
+    };
+
+    const adminTo = process.env.ADMIN_NOTIFY_EMAIL;
+    if (adminTo) {
+      const admin = adminQuoteEmail(data);
+      await sendEmail({ to: adminTo, replyTo: realEmail, subject: admin.subject, html: admin.html, text: admin.text });
+    } else {
+      console.warn('ADMIN_NOTIFY_EMAIL is not set; skipping Telegram inquiry email.');
+    }
+
+    // Telegram users often leave a phone number only: confirm by email when they gave a real address
+    if (realEmail) {
+      const customer = customerQuoteEmail(data);
+      await sendEmail({ to: realEmail, replyTo: adminTo || undefined, subject: customer.subject, html: customer.html, text: customer.text });
+    }
+  } catch (error) {
+    console.error('Failed to send Telegram inquiry emails', error instanceof Error ? error.message : error);
   }
 }
 
@@ -476,7 +525,7 @@ async function handleMessage(msg: TelegramMessage): Promise<void> {
     const userTelegramHandle = msg.from?.username ? `@${msg.from.username}` : `ChatID:${chatId}`;
 
     try {
-      await db.insert(inquiries).values({
+      const [saved] = await db.insert(inquiries).values({
         reference,
         name: session.name || msg.from?.first_name || 'Telegram User',
         email: session.contact?.includes('@') ? session.contact : `${chatId}@telegram.mwd`,
@@ -485,6 +534,16 @@ async function handleMessage(msg: TelegramMessage): Promise<void> {
         serviceOfInterest: session.serviceOfInterest || 'General Inquiry',
         projectDescription: text,
         status: 'new',
+      }).returning({ id: inquiries.id });
+
+      await notifyAboutTelegramInquiry({
+        id: saved.id,
+        reference,
+        name: session.name || msg.from?.first_name || 'Telegram User',
+        contact: session.contact,
+        telegram: userTelegramHandle,
+        service: session.serviceOfInterest || 'General Inquiry',
+        description: text,
       });
 
       await clearSession(chatIdStr);
@@ -548,7 +607,7 @@ async function enterFlowNode(chatId: number, flow: Flow, nodeId: string, session
     const reference = `REF-TG-${nanoid(6).toUpperCase()}`;
     const { name, contact } = parseNameAndContact(vars.details ?? '');
     try {
-      await db.insert(inquiries).values({
+      const [saved] = await db.insert(inquiries).values({
         reference,
         name: name || from?.first_name || 'Telegram User',
         email: contact.includes('@') ? contact : `${chatId}@telegram.mwd`,
@@ -557,6 +616,16 @@ async function enterFlowNode(chatId: number, flow: Flow, nodeId: string, session
         serviceOfInterest: vars.service || 'General Inquiry',
         projectDescription: vars.description || '(no description)',
         status: 'new',
+      }).returning({ id: inquiries.id });
+
+      await notifyAboutTelegramInquiry({
+        id: saved.id,
+        reference,
+        name: name || from?.first_name || 'Telegram User',
+        contact,
+        telegram: from?.username ? `@${from.username}` : `ChatID:${chatId}`,
+        service: vars.service || 'General Inquiry',
+        description: vars.description || '(no description)',
       });
     } catch (error) {
       console.error('Error saving Telegram inquiry to database:', error);
