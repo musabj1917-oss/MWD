@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { db } from '@/db';
-import { telegramProcessedUpdates, telegramSessions, inquiries } from '@/db/schema';
+import { telegramProcessedUpdates, telegramSessions, inquiries, botMessages } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { botText } from '@/lib/bot-content';
@@ -44,6 +44,8 @@ export interface TelegramMessage {
   chat: TelegramChat;
   date: number;
   text?: string;
+  video?: { file_id: string };
+  document?: { file_id: string; mime_type?: string };
 }
 
 export interface TelegramCallbackQuery {
@@ -279,6 +281,7 @@ export const MAIN_MENU_KEYBOARD: TelegramInlineKeyboardMarkup = {
       { text: '🤖 Ask AI (Coming Soon)', callback_data: 'menu_ask_ai' },
       { text: '📞 Contact MWD', callback_data: 'menu_contact' },
     ],
+    [{ text: '🎬 How to use this bot', callback_data: 'menu_howto' }],
   ],
 };
 
@@ -312,6 +315,138 @@ export function parseNameAndContact(input: string): { name: string; contact: str
   return { name: (name || 'Telegram User').slice(0, 200), contact: found.trim() };
 }
 
+// --- How-to video ---
+// The video is stored in bot_messages under the key "howto_video": a Telegram file_id or a link.
+const HOWTO_KEY = 'howto_video';
+
+async function getHowToVideo(): Promise<string | null> {
+  try {
+    const [row] = await db.select().from(botMessages).where(eq(botMessages.key, HOWTO_KEY)).limit(1);
+    return row?.value?.trim() || null;
+  } catch (error) {
+    console.error('Could not load how-to video:', error instanceof Error ? error.message : error);
+    return null;
+  }
+}
+
+async function saveHowToVideo(value: string): Promise<void> {
+  await db
+    .insert(botMessages)
+    .values({ key: HOWTO_KEY, value })
+    .onConflictDoUpdate({ target: botMessages.key, set: { value, updatedAt: new Date() } });
+}
+
+async function removeHowToVideo(): Promise<void> {
+  await db.delete(botMessages).where(eq(botMessages.key, HOWTO_KEY));
+}
+
+async function sendHowTo(chatId: number): Promise<void> {
+  const video = await getHowToVideo();
+  if (!video) {
+    await sendTelegramMessage(
+      chatId,
+      'A how-to video is coming soon. For now, tap <b>Request a Website</b> and the bot will guide you step by step.',
+      MAIN_MENU_KEYBOARD
+    );
+    return;
+  }
+
+  const caption = await botText('howto_caption');
+  const back: TelegramInlineKeyboardButton[] = [{ text: '« Back to Main Menu', callback_data: 'menu_main' }];
+  const isUrl = /^https?:\/\//i.test(video);
+  const isDirectFile = /\.(mp4|mov|webm)(\?.*)?$/i.test(video);
+
+  // A Telegram file_id or a direct video file plays right inside the chat
+  if (!isUrl || isDirectFile) {
+    const sent = await callTelegramApi('sendVideo', {
+      chat_id: chatId,
+      video,
+      caption,
+      parse_mode: 'HTML',
+      supports_streaming: true,
+      reply_markup: { inline_keyboard: [back] },
+    });
+    if (sent) return;
+  }
+
+  // Any other link (YouTube, TikTok, ...) opens from a button
+  if (isUrl) {
+    await sendTelegramMessage(chatId, caption, {
+      inline_keyboard: [[{ text: '▶️ Watch the video', url: video }], back],
+    });
+    return;
+  }
+
+  await sendTelegramMessage(chatId, 'Sorry, the video is not available right now. Please try again later.', MAIN_MENU_KEYBOARD);
+}
+
+// Hidden admin flow: /admin <ADMIN_PASSWORD>, then send the video (or a link). Returns true when the update was handled.
+async function handleHowToAndAdmin(msg: TelegramMessage): Promise<boolean> {
+  if (msg.chat.type !== 'private') return false;
+  const chatId = msg.chat.id;
+  const chatIdStr = String(chatId);
+  const text = msg.text?.trim();
+  const fileId = msg.video?.file_id ?? (msg.document?.mime_type?.startsWith('video/') ? msg.document.file_id : undefined);
+
+  if (text === '/howto') {
+    await sendHowTo(chatId);
+    return true;
+  }
+
+  if (text && /^\/admin(\s|$)/.test(text)) {
+    // Remove the message so the password does not stay in the chat
+    await deleteTelegramMessage(chatId, msg.message_id);
+    const password = text.replace(/^\/admin\s*/, '');
+    if (!verifyTelegramSecret(password, process.env.ADMIN_PASSWORD)) {
+      await sendTelegramMessage(chatId, 'Wrong password.');
+      return true;
+    }
+    await setSession(chatIdStr, { step: 'admin_video' });
+    await sendTelegramMessage(
+      chatId,
+      '<b>Admin mode</b>\n\nSend me the how-to video now, or paste a video link (https://...).\n\n/remove - delete the current video\n/cancel - leave admin mode'
+    );
+    return true;
+  }
+
+  if (!text && !fileId) return false;
+  const session = await getSession(chatIdStr);
+  if (session.step !== 'admin_video') return false;
+
+  if (text === '/start' || text === '/help') {
+    await clearSession(chatIdStr);
+    return false;
+  }
+  if (text === '/cancel') {
+    await clearSession(chatIdStr);
+    await sendTelegramMessage(chatId, 'Left admin mode.', MAIN_MENU_KEYBOARD);
+    return true;
+  }
+  if (text === '/remove') {
+    await removeHowToVideo();
+    await clearSession(chatIdStr);
+    await sendTelegramMessage(chatId, '✅ How-to video removed.', MAIN_MENU_KEYBOARD);
+    return true;
+  }
+
+  const value = fileId ?? (text && /^https?:\/\/\S+$/i.test(text) ? text : null);
+  if (!value) {
+    await sendTelegramMessage(chatId, 'Please send a video file or a link that starts with https://\n\n/cancel to stop.');
+    return true;
+  }
+
+  try {
+    await saveHowToVideo(value);
+  } catch (error) {
+    console.error('Could not save how-to video:', error instanceof Error ? error.message : error);
+    await sendTelegramMessage(chatId, '⚠️ Could not save the video. Please try again.');
+    return true;
+  }
+  await clearSession(chatIdStr);
+  await sendTelegramMessage(chatId, '✅ Video saved. Send /howto to test it.', MAIN_MENU_KEYBOARD);
+  return true;
+}
+
 // --- Bot Main Handler ---
 export async function processTelegramUpdate(update: TelegramUpdate): Promise<{ status: number; body: string }> {
   if (!update || typeof update.update_id !== 'number') {
@@ -321,6 +456,11 @@ export async function processTelegramUpdate(update: TelegramUpdate): Promise<{ s
   // Deduplication check
   if (await isDuplicateUpdate(update.update_id)) {
     return { status: 200, body: 'Duplicate update ignored' };
+  }
+
+  // /howto and the hidden admin commands for setting the how-to video work in both bot modes
+  if (update.message && (await handleHowToAndAdmin(update.message))) {
+    return { status: 200, body: 'Message processed' };
   }
 
   // A flow saved in /admin/bot/flow replaces the built-in conversation
@@ -437,6 +577,11 @@ async function handleCallbackQuery(cb: TelegramCallbackQuery): Promise<void> {
       await botText('ask_ai'),
       MAIN_MENU_KEYBOARD
     );
+    return;
+  }
+
+  if (data === 'menu_howto') {
+    await sendHowTo(chatId);
     return;
   }
 
