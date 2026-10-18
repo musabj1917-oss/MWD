@@ -1,27 +1,14 @@
-import { createHash, timingSafeEqual } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { handleRpc } from '@/lib/mcp';
+import { checkMcpAuth } from '@/lib/mcp-oauth';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-const digest = (s: string) => createHash('sha256').update(s).digest();
-
-function checkAuth(req: NextRequest): 'ok' | 'denied' | 'disabled' {
-  const key = process.env.MCP_API_KEY;
-  if (!key || key.length < 24) return 'disabled'; // refuse to run with a missing or weak key
-  const header = req.headers.get('authorization') ?? '';
-  const supplied = /^bearer\s+/i.test(header) ? header.replace(/^bearer\s+/i, '').trim() : req.headers.get('x-api-key') ?? '';
-  if (!supplied) return 'denied';
-  return timingSafeEqual(digest(supplied), digest(key)) ? 'ok' : 'denied';
-}
-
 export async function POST(req: NextRequest) {
-  const auth = checkAuth(req);
-  if (auth === 'disabled') return NextResponse.json({ error: 'MCP server is not configured.' }, { status: 503 });
-  if (auth === 'denied') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: { 'WWW-Authenticate': 'Bearer' } });
-  }
+  // Accepts the static MCP_API_KEY (Claude Code / Desktop) or an OAuth access token (claude.ai / phone app)
+  const denied = checkMcpAuth(req);
+  if (denied) return denied;
 
   let body: unknown;
   try {
