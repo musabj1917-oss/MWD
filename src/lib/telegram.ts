@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { db } from '@/db';
 import { telegramProcessedUpdates, telegramSessions, inquiries, botMessages } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, like } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { botText } from '@/lib/bot-content';
 import { getCustomFlow } from '@/lib/bot-flow';
@@ -76,6 +76,77 @@ export function verifyTelegramSecret(headerSecret: string | null | undefined, ex
   return crypto.timingSafeEqual(headerBuffer, expectedBuffer);
 }
 
+// --- Chat cleanup ---
+// The bot remembers the ids of the messages in each private chat (bot and user) under bot_messages "tgchat:<chatId>"
+// and deletes them after 10 minutes without activity, or when a request is finished.
+// (Telegram bots can delete messages, not the chat itself, and only messages younger than 48 hours.)
+const CHAT_KEY = 'tgchat:';
+const IDLE_MS = 10 * 60 * 1000;
+const MAX_TRACKED = 400;
+const TRACKED_METHODS = new Set(['sendMessage', 'sendVideo', 'sendPhoto', 'sendMediaGroup']);
+
+function readTracked(value: string | undefined): { ids: number[]; last: number } {
+  try {
+    const parsed = JSON.parse(value ?? '{}') as { ids?: unknown; last?: unknown };
+    const ids = Array.isArray(parsed.ids) ? parsed.ids.filter((x): x is number => typeof x === 'number') : [];
+    return { ids, last: typeof parsed.last === 'number' ? parsed.last : 0 };
+  } catch {
+    return { ids: [], last: 0 };
+  }
+}
+
+async function trackChatMessages(chatId: number | string, ids: unknown[]): Promise<void> {
+  if (!(Number(chatId) > 0)) return; // private chats only
+  const clean = ids.filter((x): x is number => typeof x === 'number' && Number.isFinite(x));
+  const key = `${CHAT_KEY}${chatId}`;
+  try {
+    const [row] = await db.select().from(botMessages).where(eq(botMessages.key, key)).limit(1);
+    const current = readTracked(row?.value);
+    const next = Array.from(new Set([...current.ids, ...clean])).slice(-MAX_TRACKED);
+    const value = JSON.stringify({ ids: next, last: Date.now() });
+    await db
+      .insert(botMessages)
+      .values({ key, value })
+      .onConflictDoUpdate({ target: botMessages.key, set: { value, updatedAt: new Date() } });
+  } catch (error) {
+    console.error('Could not track chat messages:', error instanceof Error ? error.message : error);
+  }
+}
+
+async function deleteMessagesBulk(chatId: number | string, ids: number[]): Promise<void> {
+  for (let i = 0; i < ids.length; i += 100) {
+    await callTelegramApi('deleteMessages', { chat_id: chatId, message_ids: ids.slice(i, i + 100) });
+  }
+}
+
+/** Deletes everything the bot remembers in this chat (used when a request is finished). */
+export async function purgeChat(chatId: number | string): Promise<void> {
+  const key = `${CHAT_KEY}${chatId}`;
+  try {
+    const [row] = await db.select().from(botMessages).where(eq(botMessages.key, key)).limit(1);
+    if (!row) return;
+    await deleteMessagesBulk(chatId, readTracked(row.value).ids);
+    await db.delete(botMessages).where(eq(botMessages.key, key));
+  } catch (error) {
+    console.error('Could not purge chat:', error instanceof Error ? error.message : error);
+  }
+}
+
+/** Deletes the messages of every chat that has been idle for 10 minutes. Returns how many chats were cleaned. */
+export async function sweepIdleChats(): Promise<number> {
+  const rows = await db.select().from(botMessages).where(like(botMessages.key, `${CHAT_KEY}%`));
+  const now = Date.now();
+  let cleaned = 0;
+  for (const row of rows) {
+    const { ids, last } = readTracked(row.value);
+    if (now - last < IDLE_MS) continue;
+    await deleteMessagesBulk(row.key.slice(CHAT_KEY.length), ids);
+    await db.delete(botMessages).where(eq(botMessages.key, row.key));
+    cleaned++;
+  }
+  return cleaned;
+}
+
 // --- Telegram API Client ---
 async function callTelegramApi(method: string, payload: Record<string, unknown>): Promise<boolean> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -95,6 +166,12 @@ async function callTelegramApi(method: string, payload: Record<string, unknown>)
       const errorText = await response.text();
       console.error(`Telegram API error (${method}): ${response.status}`, errorText.slice(0, 200));
       return false;
+    }
+    if (TRACKED_METHODS.has(method)) {
+      const data = (await response.json().catch(() => null)) as { result?: unknown } | null;
+      const result = data?.result;
+      const ids = (Array.isArray(result) ? result : [result]).map((r) => (r as { message_id?: unknown } | undefined)?.message_id);
+      await trackChatMessages(payload.chat_id as number | string, ids);
     }
     return true;
   } catch (error) {
@@ -480,7 +557,23 @@ async function handleHowToAdmin(msg: TelegramMessage): Promise<boolean> {
 }
 
 // --- Bot Main Handler ---
+let lastSweepAt = 0;
+
 export async function processTelegramUpdate(update: TelegramUpdate): Promise<{ status: number; body: string }> {
+  const result = await processTelegramUpdateInner(update);
+  // Also clean idle chats here (at most once a minute) in case no scheduled cleanup is set up
+  if (Date.now() - lastSweepAt > 60_000) {
+    lastSweepAt = Date.now();
+    try {
+      await sweepIdleChats();
+    } catch (error) {
+      console.error('Idle chat cleanup failed:', error instanceof Error ? error.message : error);
+    }
+  }
+  return result;
+}
+
+async function processTelegramUpdateInner(update: TelegramUpdate): Promise<{ status: number; body: string }> {
   if (!update || typeof update.update_id !== 'number') {
     return { status: 400, body: 'Invalid update payload' };
   }
@@ -488,6 +581,13 @@ export async function processTelegramUpdate(update: TelegramUpdate): Promise<{ s
   // Deduplication check
   if (await isDuplicateUpdate(update.update_id)) {
     return { status: 200, body: 'Duplicate update ignored' };
+  }
+
+  // Remember the user's message (and refresh the idle timer) so it can be cleaned up later
+  if (update.message?.chat.type === 'private') {
+    await trackChatMessages(update.message.chat.id, [update.message.message_id]);
+  } else if (update.callback_query?.message?.chat.type === 'private') {
+    await trackChatMessages(update.callback_query.message.chat.id, []);
   }
 
   // Hidden admin: /admin <password>, then a video or link sets the how-to video
@@ -725,6 +825,9 @@ async function handleMessage(msg: TelegramMessage): Promise<void> {
 
       await clearSession(chatIdStr);
 
+      // Request finished: clear the whole conversation, then show only the confirmation
+      await purgeChat(chatId);
+
       await sendTelegramMessage(
         chatId,
         await botText('inquiry_done', { reference }),
@@ -810,6 +913,8 @@ async function enterFlowNode(chatId: number, flow: Flow, nodeId: string, session
       return;
     }
     await clearSession(chatIdStr);
+    // Request finished: clear the whole conversation, then show only the confirmation
+    await purgeChat(chatId);
     await sendFlowNode(chatId, node, { ...vars, reference });
     return;
   }
