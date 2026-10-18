@@ -119,6 +119,17 @@ export async function answerCallbackQuery(callbackQueryId: string, text?: string
   });
 }
 
+export async function deleteTelegramMessage(chatId: number | string, messageId: number): Promise<boolean> {
+  return callTelegramApi('deleteMessage', { chat_id: chatId, message_id: messageId });
+}
+
+// Removes the message whose button was just tapped, so only the newest message stays in the chat
+export async function removeTappedMessage(cb: TelegramCallbackQuery): Promise<void> {
+  if (cb.message && cb.message.chat.type === 'private') {
+    await deleteTelegramMessage(cb.message.chat.id, cb.message.message_id);
+  }
+}
+
 // --- Deduplication Helper ---
 async function isDuplicateUpdate(updateId: number): Promise<boolean> {
   const idStr = String(updateId);
@@ -267,7 +278,8 @@ export async function processTelegramUpdate(update: TelegramUpdate): Promise<{ s
   const flow = await getCustomFlow();
   if (flow) {
     if (update.callback_query) {
-      await handleFlowCallback(update.callback_query, flow);
+      const handled = await handleFlowCallback(update.callback_query, flow);
+      if (handled) await removeTappedMessage(update.callback_query);
       return { status: 200, body: 'Callback processed' };
     }
     if (update.message) {
@@ -280,6 +292,7 @@ export async function processTelegramUpdate(update: TelegramUpdate): Promise<{ s
   // Handle Callback Queries
   if (update.callback_query) {
     await handleCallbackQuery(update.callback_query);
+    await removeTappedMessage(update.callback_query);
     return { status: 200, body: 'Callback processed' };
   }
 
@@ -438,6 +451,7 @@ async function handleMessage(msg: TelegramMessage): Promise<void> {
       await botText('welcome_start'),
       MAIN_MENU_KEYBOARD
     );
+    await deleteTelegramMessage(chatId, msg.message_id);
     return;
   }
 
@@ -558,21 +572,22 @@ async function enterFlowNode(chatId: number, flow: Flow, nodeId: string, session
   await sendFlowNode(chatId, node, vars);
 }
 
-async function handleFlowCallback(cb: TelegramCallbackQuery, flow: Flow): Promise<void> {
+async function handleFlowCallback(cb: TelegramCallbackQuery, flow: Flow): Promise<boolean> {
   await answerCallbackQuery(cb.id);
   const chatId = cb.message?.chat.id;
-  if (!chatId || cb.message?.chat.type !== 'private' || !cb.data) return;
+  if (!chatId || cb.message?.chat.type !== 'private' || !cb.data) return false;
 
   const [kind, nodeId, idx] = cb.data.split(':');
-  if (kind !== 'b') return;
+  if (kind !== 'b') return false;
   const node = flow.nodes.find((n) => n.id === nodeId);
   const button = node?.buttons[Number(idx)];
-  if (!button || button.kind !== 'goto' || !button.target) return;
+  if (!button || button.kind !== 'goto' || !button.target) return false;
 
   const session = await getSession(String(chatId));
   const vars = { ...(session.vars ?? {}) };
   if (button.set) vars.service = button.set;
   await enterFlowNode(chatId, flow, button.target, { step: 'idle', vars }, cb.from);
+  return true;
 }
 
 async function handleFlowMessage(msg: TelegramMessage, flow: Flow): Promise<void> {
@@ -585,6 +600,7 @@ async function handleFlowMessage(msg: TelegramMessage, flow: Flow): Promise<void
   if (text === '/start' || text === '/help') {
     await clearSession(chatIdStr);
     await enterFlowNode(chatId, flow, flow.start, { step: 'idle' }, msg.from);
+    await deleteTelegramMessage(chatId, msg.message_id);
     return;
   }
 
