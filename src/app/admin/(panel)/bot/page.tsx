@@ -15,9 +15,12 @@ export default async function BotEditorPage() {
   const { content, custom } = await getBotContent();
   const flowActive = !!(await getCustomFlow());
   let savedVideo = '';
+  let uploadedFile = false;
   try {
     const [row] = await db.select().from(botMessages).where(eq(botMessages.key, 'howto_video')).limit(1);
-    savedVideo = row?.value && /^https?:\/\//i.test(row.value) ? row.value : '';
+    const v = row?.value?.trim() ?? '';
+    savedVideo = /^https?:\/\//i.test(v) ? v : '';
+    uploadedFile = !!v && !savedVideo;
   } catch (error) {
     console.error('Could not load Telegram how-to video setting:', error);
   }
@@ -36,7 +39,7 @@ export default async function BotEditorPage() {
         </p>
       )}
       <div className="space-y-6">
-        <HowToVideoEditor initialUrl={savedVideo} />
+        <HowToVideoEditor initialUrl={savedVideo} uploadedFile={uploadedFile} />
         {BOT_FIELDS.map((f) => (
           <BotMessageEditor key={f.key} field={f} initial={content[f.key]} custom={custom.has(f.key)} />
         ))}

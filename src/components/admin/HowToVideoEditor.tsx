@@ -5,16 +5,20 @@ import { saveHowToVideo, type HowToVideoState } from '@/server/actions/admin';
 
 const initialState: HowToVideoState = { ok: false, message: '' };
 
-export function HowToVideoEditor({ initialUrl }: { initialUrl: string }) {
+export function HowToVideoEditor({ initialUrl, uploadedFile = false }: { initialUrl: string; uploadedFile?: boolean }) {
   const [state, action, pending] = useActionState(saveHowToVideo, initialState);
   return (
     <section className="border border-gray-200 bg-white p-5">
       <h2 className="text-lg font-semibold">Telegram how-to video</h2>
       <p className="mt-2 text-sm text-gray-600">
-        Manage the tutorial video sent inside the Telegram bot when users send /start. Changes are made here in the website admin only.
-        Use a direct public MP4 video URL that Telegram can fetch.
+        The tutorial video opens first inside the Telegram bot when someone sends /start. Set it here with a direct public MP4 link, or upload a video file in Telegram: send /admin and your password to the bot, then send the video. Both ways edit the same video.
       </p>
-      {!initialUrl && (
+      {uploadedFile && (
+        <p className="mt-3 rounded bg-green-50 p-3 text-sm text-green-900">
+          A video uploaded through Telegram is active. Saving a link here replaces it, and Remove video deletes it.
+        </p>
+      )}
+      {!initialUrl && !uploadedFile && (
         <p className="mt-3 rounded bg-amber-50 p-3 text-sm text-amber-900">
           No Telegram how-to video URL is saved yet. Add a direct public video URL here.
         </p>

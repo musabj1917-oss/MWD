@@ -297,7 +297,6 @@ export const MAIN_MENU_KEYBOARD: TelegramInlineKeyboardMarkup = {
       { text: '🤖 Ask AI (Coming Soon)', callback_data: 'menu_ask_ai' },
       { text: '📞 Contact MWD', callback_data: 'menu_contact' },
     ],
-    [{ text: '🎬 How to use this bot', callback_data: 'menu_howto' }],
   ],
 };
 
@@ -331,23 +330,95 @@ export function parseNameAndContact(input: string): { name: string; contact: str
   return { name: (name || 'Telegram User').slice(0, 200), contact: found.trim() };
 }
 
-// Video is configured only in the website admin dashboard and delivered inside Telegram.
+// The how-to video is set in the website admin (/admin/bot) or by the owner inside Telegram (/admin).
+// The saved value is a direct video link, another link, or a Telegram file_id.
 async function sendConfiguredHowToVideo(chatId: number): Promise<void> {
   try {
     const [row] = await db.select().from(botMessages).where(eq(botMessages.key, 'howto_video')).limit(1);
-    const videoUrl = row?.value?.trim();
-    if (!videoUrl || !/^https?:\/\//i.test(videoUrl)) return;
-    // Telegram's sendVideo requires a direct media URL (not a YouTube/Vimeo webpage).
-    if (!/\.mp4(?:\?.*)?$/i.test(videoUrl)) {
-      await sendTelegramMessage(chatId, '🎬 Watch the MWD how-to video:', {
-        inline_keyboard: [[{ text: '▶️ Open how-to video', url: videoUrl }]],
-      });
-      return;
+    const video = row?.value?.trim();
+    if (!video) return;
+    const caption = await botText('howto_caption');
+    const isUrl = /^https?:\/\//i.test(video);
+    const isDirectFile = /\.(mp4|mov|webm)(\?.*)?$/i.test(video);
+
+    // A Telegram file_id or a direct video file plays right inside the chat
+    if (!isUrl || isDirectFile) {
+      if (await sendTelegramVideo(chatId, video, caption)) return;
     }
-    await sendTelegramVideo(chatId, videoUrl, '🎬 How to use the MWD bot');
+
+    // Any other link (YouTube, TikTok, ...) goes as text; Telegram shows a preview with a play button
+    if (isUrl) {
+      const safe = video.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      await callTelegramApi('sendMessage', { chat_id: chatId, text: `${caption}\n\n${safe}`, parse_mode: 'HTML' });
+    }
   } catch (error) {
     console.error('Could not send configured how-to video:', error);
   }
+}
+
+// Hidden admin: /admin <ADMIN_PASSWORD>, then send a video file or a link. Returns true when the update was handled.
+async function handleHowToAdmin(msg: TelegramMessage): Promise<boolean> {
+  if (msg.chat.type !== 'private') return false;
+  const chatId = msg.chat.id;
+  const chatIdStr = String(chatId);
+  const text = msg.text?.trim();
+  const fileId = msg.video?.file_id ?? (msg.document?.mime_type?.startsWith('video/') ? msg.document.file_id : undefined);
+
+  if (text && /^\/admin(\s|$)/.test(text)) {
+    // Remove the message so the password does not stay in the chat
+    await deleteTelegramMessage(chatId, msg.message_id);
+    const password = text.replace(/^\/admin\s*/, '');
+    if (!verifyTelegramSecret(password, process.env.ADMIN_PASSWORD)) {
+      await sendTelegramMessage(chatId, 'Wrong password.');
+      return true;
+    }
+    await setSession(chatIdStr, { step: 'admin_video' });
+    await sendTelegramMessage(
+      chatId,
+      '<b>Admin mode</b>\n\nSend me the how-to video now, or paste a video link (https://...).\n\n/remove - delete the current video\n/cancel - leave admin mode'
+    );
+    return true;
+  }
+
+  if (!text && !fileId) return false;
+  const session = await getSession(chatIdStr);
+  if (session.step !== 'admin_video') return false;
+
+  if (text === '/start' || text === '/help') {
+    await clearSession(chatIdStr);
+    return false;
+  }
+  if (text === '/cancel') {
+    await clearSession(chatIdStr);
+    await sendTelegramMessage(chatId, 'Left admin mode.', MAIN_MENU_KEYBOARD);
+    return true;
+  }
+  if (text === '/remove') {
+    await db.delete(botMessages).where(eq(botMessages.key, 'howto_video'));
+    await clearSession(chatIdStr);
+    await sendTelegramMessage(chatId, '✅ How-to video removed.', MAIN_MENU_KEYBOARD);
+    return true;
+  }
+
+  const value = fileId ?? (text && /^https?:\/\/\S+$/i.test(text) ? text : null);
+  if (!value) {
+    await sendTelegramMessage(chatId, 'Please send a video file or a link that starts with https://\n\n/cancel to stop.');
+    return true;
+  }
+
+  try {
+    await db
+      .insert(botMessages)
+      .values({ key: 'howto_video', value })
+      .onConflictDoUpdate({ target: botMessages.key, set: { value, updatedAt: new Date() } });
+  } catch (error) {
+    console.error('Could not save how-to video:', error instanceof Error ? error.message : error);
+    await sendTelegramMessage(chatId, '⚠️ Could not save the video. Please try again.');
+    return true;
+  }
+  await clearSession(chatIdStr);
+  await sendTelegramMessage(chatId, '✅ Video saved. It now opens first when someone sends /start.', MAIN_MENU_KEYBOARD);
+  return true;
 }
 
 // --- Bot Main Handler ---
@@ -361,8 +432,13 @@ export async function processTelegramUpdate(update: TelegramUpdate): Promise<{ s
     return { status: 200, body: 'Duplicate update ignored' };
   }
 
-  // The tutorial video is configured in the website admin, but shown inside Telegram.
-  if (update.message?.text?.trim() === '/start') {
+  // Hidden admin: /admin <password>, then a video or link sets the how-to video
+  if (update.message && (await handleHowToAdmin(update.message))) {
+    return { status: 200, body: 'Message processed' };
+  }
+
+  // The how-to video opens first on /start, before the welcome message
+  if (update.message?.chat.type === 'private' && /^\/start(@\w+)?(\s|$)/.test(update.message.text?.trim() ?? '')) {
     await sendConfiguredHowToVideo(update.message.chat.id);
   }
 
@@ -480,12 +556,6 @@ async function handleCallbackQuery(cb: TelegramCallbackQuery): Promise<void> {
       await botText('ask_ai'),
       MAIN_MENU_KEYBOARD
     );
-    return;
-  }
-
-  if (data === 'menu_howto') {
-    await sendConfiguredHowToVideo(chatId);
-    await sendTelegramMessage(chatId, 'Use the menu below to continue.', MAIN_MENU_KEYBOARD);
     return;
   }
 
