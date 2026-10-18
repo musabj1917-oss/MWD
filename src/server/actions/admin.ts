@@ -218,7 +218,7 @@ export async function resetFlow(_prev: BotMessageState): Promise<BotMessageState
 }
 
 
-/** Save the public how-to video URL used on the website homepage. */
+/** Save the Telegram how-to video URL from the website admin dashboard. */
 export type HowToVideoState = { ok: boolean; message: string };
 
 export async function saveHowToVideo(
@@ -241,12 +241,9 @@ export async function saveHowToVideo(
       return { ok: false, message: 'The video URL must use HTTPS or HTTP.' };
     }
     const host = parsed.hostname.toLowerCase();
-    const supported = /\.(mp4|webm|ogg)(?:$)/i.test(parsed.pathname)
-      || host === 'youtube.com' || host.endsWith('.youtube.com')
-      || host === 'youtu.be'
-      || host === 'vimeo.com' || host.endsWith('.vimeo.com');
+    const supported = /\.mp4$/i.test(parsed.pathname);
     if (!supported) {
-      return { ok: false, message: 'Use a direct MP4/WebM/OGG URL or a YouTube/Vimeo link.' };
+      return { ok: false, message: 'Use a direct public MP4 video URL. YouTube/Vimeo page links cannot be sent as Telegram video files.' };
     }
   }
   try {
@@ -259,11 +256,10 @@ export async function saveHowToVideo(
           set: { value: raw, updatedAt: new Date() },
         });
     }
-    revalidatePath('/');
     revalidatePath('/admin/bot');
-    return { ok: true, message: raw ? 'Homepage video saved.' : 'Homepage video removed.' };
+    return { ok: true, message: raw ? 'Telegram how-to video saved.' : 'Telegram how-to video removed.' };
   } catch (error) {
-    console.error('Could not save homepage how-to video:', error);
+    console.error('Could not save Telegram how-to video:', error);
     return { ok: false, message: 'Could not save the video. Please try again.' };
   }
 }

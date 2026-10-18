@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { desc, eq } from 'drizzle-orm';
 import { db } from '@/db';
-import { portfolioProjects, botMessages } from '@/db/schema';
+import { portfolioProjects } from '@/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,30 +19,7 @@ export default async function Home() {
     console.error('Could not load projects for the homepage:', error instanceof Error ? error.message : error);
   }
   const heroImage = projects.find((p) => p.coverImage)?.coverImage ?? null;
-  let howToVideo = '';
-  try {
-    const [row] = await db.select().from(botMessages).where(eq(botMessages.key, 'howto_video')).limit(1);
-    howToVideo = row?.value && /^https?:\/\//i.test(row.value) ? row.value : '';
-  } catch (error) {
-    console.error('Could not load homepage how-to video:', error);
-  }
-  const videoUrl = (() => {
-    if (!howToVideo) return null;
-    try {
-      const url = new URL(howToVideo);
-      const host = url.hostname.toLowerCase();
-      if (host === 'youtu.be') return 'https://www.youtube-nocookie.com/embed/' + url.pathname.slice(1).split('/')[0];
-      if (host === 'youtube.com' || host.endsWith('.youtube.com')) {
-        const id = url.searchParams.get('v') || url.pathname.match(/\/embed\/([^/]+)/)?.[1] || url.pathname.match(/\/shorts\/([^/]+)/)?.[1];
-        return id ? 'https://www.youtube-nocookie.com/embed/' + id : null;
-      }
-      if (host === 'vimeo.com' || host.endsWith('.vimeo.com')) {
-        const id = url.pathname.split('/').filter(Boolean).pop();
-        return id && /^\d+$/.test(id) ? 'https://player.vimeo.com/video/' + id : null;
-      }
-      return /\.(mp4|webm|ogg)$/i.test(url.pathname) ? howToVideo : null;
-    } catch { return null; }
-  })();
+
 
   return (
     <div>
@@ -73,24 +50,7 @@ export default async function Home() {
         </div>
       </header>
 
-      {videoUrl && (
-        <section id="how-to-video" className="py-16 bg-gray-50">
-          <div className="container">
-            <h2 className="text-3xl font-semibold mb-3">How to use MWD</h2>
-            <p className="text-gray-600 mb-8">Watch our quick guide.</p>
-            <div className="mx-auto max-w-4xl overflow-hidden rounded-lg bg-black aspect-video">
-              {/\.(mp4|webm|ogg)(\?.*)?$/i.test(videoUrl) ? (
-                <video className="h-full w-full" controls playsInline preload="metadata">
-                  <source src={videoUrl} />
-                  Your browser does not support video playback.
-                </video>
-              ) : (
-                <iframe className="h-full w-full" src={videoUrl} title="How to use MWD" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen loading="lazy" />
-              )}
-            </div>
-          </div>
-        </section>
-      )}
+
 
       <div>
         <section className="py-20 bg-white">

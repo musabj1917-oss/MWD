@@ -19,7 +19,7 @@ export default async function BotEditorPage() {
     const [row] = await db.select().from(botMessages).where(eq(botMessages.key, 'howto_video')).limit(1);
     savedVideo = row?.value && /^https?:\/\//i.test(row.value) ? row.value : '';
   } catch (error) {
-    console.error('Could not load homepage video setting:', error);
+    console.error('Could not load Telegram how-to video setting:', error);
   }
 
   return (

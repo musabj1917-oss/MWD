@@ -102,6 +102,22 @@ async function callTelegramApi(method: string, payload: Record<string, unknown>)
   }
 }
 
+export async function sendTelegramVideo(
+  chatId: number | string,
+  video: string,
+  caption?: string,
+  replyMarkup?: TelegramInlineKeyboardMarkup
+): Promise<boolean> {
+  return callTelegramApi('sendVideo', {
+    chat_id: chatId,
+    video,
+    caption,
+    parse_mode: 'HTML',
+    reply_markup: replyMarkup,
+    supports_streaming: true,
+  });
+}
+
 export async function sendTelegramMessage(
   chatId: number | string,
   text: string,
@@ -315,14 +331,23 @@ export function parseNameAndContact(input: string): { name: string; contact: str
   return { name: (name || 'Telegram User').slice(0, 200), contact: found.trim() };
 }
 
-// The tutorial is managed from the website admin and watched on the website homepage.
-async function sendHowTo(chatId: number): Promise<void> {
-  const url = new URL('/#how-to-video', siteUrl).toString();
-  await sendTelegramMessage(
-    chatId,
-    '🎬 Watch the MWD how-to video on our website:',
-    { inline_keyboard: [[{ text: '▶️ Open how-to video', url }], [{ text: '« Back to Main Menu', callback_data: 'menu_main' }]] }
-  );
+// Video is configured only in the website admin dashboard and delivered inside Telegram.
+async function sendConfiguredHowToVideo(chatId: number): Promise<void> {
+  try {
+    const [row] = await db.select().from(botMessages).where(eq(botMessages.key, 'howto_video')).limit(1);
+    const videoUrl = row?.value?.trim();
+    if (!videoUrl || !/^https?:\/\//i.test(videoUrl)) return;
+    // Telegram's sendVideo requires a direct media URL (not a YouTube/Vimeo webpage).
+    if (!/\.mp4(?:\?.*)?$/i.test(videoUrl)) {
+      await sendTelegramMessage(chatId, '🎬 Watch the MWD how-to video:', {
+        inline_keyboard: [[{ text: '▶️ Open how-to video', url: videoUrl }]],
+      });
+      return;
+    }
+    await sendTelegramVideo(chatId, videoUrl, '🎬 How to use the MWD bot');
+  } catch (error) {
+    console.error('Could not send configured how-to video:', error);
+  }
 }
 
 // --- Bot Main Handler ---
@@ -336,10 +361,9 @@ export async function processTelegramUpdate(update: TelegramUpdate): Promise<{ s
     return { status: 200, body: 'Duplicate update ignored' };
   }
 
-  // The tutorial is managed on the website and opens on the homepage, not inside Telegram.
-  if (update.message?.text?.trim() === '/howto') {
-    await sendHowTo(update.message.chat.id);
-    return { status: 200, body: 'How-to link sent' };
+  // The tutorial video is configured in the website admin, but shown inside Telegram.
+  if (update.message?.text?.trim() === '/start') {
+    await sendConfiguredHowToVideo(update.message.chat.id);
   }
 
   // A flow saved in /admin/bot/flow replaces the built-in conversation
@@ -460,7 +484,8 @@ async function handleCallbackQuery(cb: TelegramCallbackQuery): Promise<void> {
   }
 
   if (data === 'menu_howto') {
-    await sendHowTo(chatId);
+    await sendConfiguredHowToVideo(chatId);
+    await sendTelegramMessage(chatId, 'Use the menu below to continue.', MAIN_MENU_KEYBOARD);
     return;
   }
 
