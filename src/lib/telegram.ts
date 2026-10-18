@@ -341,43 +341,12 @@ async function removeHowToVideo(): Promise<void> {
 }
 
 async function sendHowTo(chatId: number): Promise<void> {
-  const video = await getHowToVideo();
-  if (!video) {
-    await sendTelegramMessage(
-      chatId,
-      'A how-to video is coming soon. For now, tap <b>Request a Website</b> and the bot will guide you step by step.',
-      MAIN_MENU_KEYBOARD
-    );
-    return;
-  }
-
-  const caption = await botText('howto_caption');
-  const back: TelegramInlineKeyboardButton[] = [{ text: '« Back to Main Menu', callback_data: 'menu_main' }];
-  const isUrl = /^https?:\/\//i.test(video);
-  const isDirectFile = /\.(mp4|mov|webm)(\?.*)?$/i.test(video);
-
-  // A Telegram file_id or a direct video file plays right inside the chat
-  if (!isUrl || isDirectFile) {
-    const sent = await callTelegramApi('sendVideo', {
-      chat_id: chatId,
-      video,
-      caption,
-      parse_mode: 'HTML',
-      supports_streaming: true,
-      reply_markup: { inline_keyboard: [back] },
-    });
-    if (sent) return;
-  }
-
-  // Any other link (YouTube, TikTok, ...) opens from a button
-  if (isUrl) {
-    await sendTelegramMessage(chatId, caption, {
-      inline_keyboard: [[{ text: '▶️ Watch the video', url: video }], back],
-    });
-    return;
-  }
-
-  await sendTelegramMessage(chatId, 'Sorry, the video is not available right now. Please try again later.', MAIN_MENU_KEYBOARD);
+  const url = new URL('/#how-to-video', siteUrl).toString();
+  await sendTelegramMessage(
+    chatId,
+    '🎬 Watch the MWD how-to video on our website:',
+    { inline_keyboard: [[{ text: '▶️ Open how-to video', url }], [{ text: '« Back to Main Menu', callback_data: 'menu_main' }]] }
+  );
 }
 
 // Hidden admin flow: /admin <ADMIN_PASSWORD>, then send the video (or a link). Returns true when the update was handled.
@@ -458,9 +427,10 @@ export async function processTelegramUpdate(update: TelegramUpdate): Promise<{ s
     return { status: 200, body: 'Duplicate update ignored' };
   }
 
-  // /howto and the hidden admin commands for setting the how-to video work in both bot modes
-  if (update.message && (await handleHowToAndAdmin(update.message))) {
-    return { status: 200, body: 'Message processed' };
+  // The tutorial is managed on the website and opens on the homepage, not inside Telegram.
+  if (update.message?.text?.trim() === '/howto') {
+    await sendHowTo(update.message.chat.id);
+    return { status: 200, body: 'How-to link sent' };
   }
 
   // A flow saved in /admin/bot/flow replaces the built-in conversation

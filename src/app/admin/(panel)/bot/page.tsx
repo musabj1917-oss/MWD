@@ -4,12 +4,23 @@ import { PageHeader } from '@/components/admin/ui';
 import { BotMessageEditor } from '@/components/admin/BotMessageEditor';
 import { getBotContent } from '@/lib/bot-content';
 import { BOT_FIELDS } from '@/lib/bot-fields';
+import { db } from '@/db';
+import { botMessages } from '@/db/schema';
+import { eq } from 'drizzle-orm';
+import { HowToVideoEditor } from '@/components/admin/HowToVideoEditor';
 
 export const dynamic = 'force-dynamic';
 
 export default async function BotEditorPage() {
   const { content, custom } = await getBotContent();
   const flowActive = !!(await getCustomFlow());
+  let savedVideo = '';
+  try {
+    const [row] = await db.select().from(botMessages).where(eq(botMessages.key, 'howto_video')).limit(1);
+    savedVideo = row?.value && /^https?:\/\//i.test(row.value) ? row.value : '';
+  } catch (error) {
+    console.error('Could not load homepage video setting:', error);
+  }
 
   return (
     <div>
@@ -25,6 +36,7 @@ export default async function BotEditorPage() {
         </p>
       )}
       <div className="space-y-6">
+        <HowToVideoEditor initialUrl={savedVideo} />
         {BOT_FIELDS.map((f) => (
           <BotMessageEditor key={f.key} field={f} initial={content[f.key]} custom={custom.has(f.key)} />
         ))}
