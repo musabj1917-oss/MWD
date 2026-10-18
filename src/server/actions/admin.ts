@@ -221,6 +221,18 @@ export async function resetFlow(_prev: BotMessageState): Promise<BotMessageState
 /** Save the Telegram how-to video URL from the website admin dashboard. */
 export type HowToVideoState = { ok: boolean; message: string };
 
+export async function removeHowToPhotos(_prev: HowToVideoState): Promise<HowToVideoState> {
+  await enforceAdmin();
+  try {
+    await db.delete(botMessages).where(eq(botMessages.key, 'howto_photos'));
+    revalidatePath('/admin/video');
+    return { ok: true, message: 'How-to photos removed.' };
+  } catch (error) {
+    console.error('Could not remove Telegram how-to photos:', error);
+    return { ok: false, message: 'Could not remove the photos. Please try again.' };
+  }
+}
+
 export async function removeHowToVideo(_prev: HowToVideoState): Promise<HowToVideoState> {
   await enforceAdmin();
   try {

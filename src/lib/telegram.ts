@@ -45,6 +45,7 @@ export interface TelegramMessage {
   date: number;
   text?: string;
   video?: { file_id: string };
+  photo?: { file_id: string }[];
   document?: { file_id: string; mime_type?: string };
 }
 
@@ -332,27 +333,60 @@ export function parseNameAndContact(input: string): { name: string; contact: str
 
 // The how-to video is set in the website admin (/admin/bot) or by the owner inside Telegram (/admin).
 // The saved value is a direct video link, another link, or a Telegram file_id.
+async function sendHowToVideoPart(chatId: number, video: string, caption: string): Promise<boolean> {
+  const isUrl = /^https?:\/\//i.test(video);
+  const isDirectFile = /\.(mp4|mov|webm)(\?.*)?$/i.test(video);
+
+  // A Telegram file_id or a direct video file plays right inside the chat
+  if (!isUrl || isDirectFile) {
+    if (await sendTelegramVideo(chatId, video, caption)) return true;
+  }
+
+  // Any other link (YouTube, TikTok, ...) goes as text; Telegram shows a preview with a play button
+  if (isUrl) {
+    const safe = video.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return callTelegramApi('sendMessage', { chat_id: chatId, text: `${caption}\n\n${safe}`, parse_mode: 'HTML' });
+  }
+  return false;
+}
+
 async function sendConfiguredHowToVideo(chatId: number): Promise<void> {
   try {
-    const [row] = await db.select().from(botMessages).where(eq(botMessages.key, 'howto_video')).limit(1);
-    const video = row?.value?.trim();
-    if (!video) return;
-    const caption = await botText('howto_caption');
-    const isUrl = /^https?:\/\//i.test(video);
-    const isDirectFile = /\.(mp4|mov|webm)(\?.*)?$/i.test(video);
-
-    // A Telegram file_id or a direct video file plays right inside the chat
-    if (!isUrl || isDirectFile) {
-      if (await sendTelegramVideo(chatId, video, caption)) return;
+    const [videoRow] = await db.select().from(botMessages).where(eq(botMessages.key, 'howto_video')).limit(1);
+    const [photoRow] = await db.select().from(botMessages).where(eq(botMessages.key, 'howto_photos')).limit(1);
+    const video = videoRow?.value?.trim();
+    let photos: string[] = [];
+    try {
+      const parsed: unknown = JSON.parse(photoRow?.value ?? '[]');
+      if (Array.isArray(parsed)) photos = parsed.filter((x): x is string => typeof x === 'string').slice(0, 10);
+    } catch {
+      photos = [];
     }
+    if (!video && photos.length === 0) return;
 
-    // Any other link (YouTube, TikTok, ...) goes as text; Telegram shows a preview with a play button
-    if (isUrl) {
-      const safe = video.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      await callTelegramApi('sendMessage', { chat_id: chatId, text: `${caption}\n\n${safe}`, parse_mode: 'HTML' });
+    const caption = await botText('howto_caption');
+    let captionUsed = false;
+
+    if (video) captionUsed = await sendHowToVideoPart(chatId, video, caption);
+
+    if (photos.length === 1) {
+      await callTelegramApi('sendPhoto', {
+        chat_id: chatId,
+        photo: photos[0],
+        ...(captionUsed ? {} : { caption, parse_mode: 'HTML' }),
+      });
+    } else if (photos.length > 1) {
+      await callTelegramApi('sendMediaGroup', {
+        chat_id: chatId,
+        media: photos.map((id, i) => ({
+          type: 'photo',
+          media: id,
+          ...(i === 0 && !captionUsed ? { caption, parse_mode: 'HTML' } : {}),
+        })),
+      });
     }
   } catch (error) {
-    console.error('Could not send configured how-to video:', error);
+    console.error('Could not send configured how-to media:', error);
   }
 }
 
@@ -363,6 +397,7 @@ async function handleHowToAdmin(msg: TelegramMessage): Promise<boolean> {
   const chatIdStr = String(chatId);
   const text = msg.text?.trim();
   const fileId = msg.video?.file_id ?? (msg.document?.mime_type?.startsWith('video/') ? msg.document.file_id : undefined);
+  const photoId = msg.photo?.length ? msg.photo[msg.photo.length - 1].file_id : undefined;
 
   if (text && /^\/admin(\s|$)/.test(text)) {
     // Remove the message so the password does not stay in the chat
@@ -383,12 +418,12 @@ async function handleHowToAdmin(msg: TelegramMessage): Promise<boolean> {
     await setSession(chatIdStr, { step: 'admin_video' });
     await sendTelegramMessage(
       chatId,
-      '<b>Admin mode</b>\n\nSend me the how-to video now, or paste a video link (https://...).\n\n/remove - delete the current video\n/cancel - leave admin mode'
+      '<b>Admin mode</b>\n\nSend me the how-to video, or photos (up to 10, one by one), or paste a video link (https://...).\n\n/remove - delete the current video and photos\n/cancel - leave admin mode'
     );
     return true;
   }
 
-  if (!text && !fileId) return false;
+  if (!text && !fileId && !photoId) return false;
   const session = await getSession(chatIdStr);
   if (session.step !== 'admin_video') return false;
 
@@ -403,14 +438,43 @@ async function handleHowToAdmin(msg: TelegramMessage): Promise<boolean> {
   }
   if (text === '/remove') {
     await db.delete(botMessages).where(eq(botMessages.key, 'howto_video'));
+    await db.delete(botMessages).where(eq(botMessages.key, 'howto_photos'));
     await clearSession(chatIdStr);
-    await sendTelegramMessage(chatId, '✅ How-to video removed.', MAIN_MENU_KEYBOARD);
+    await sendTelegramMessage(chatId, '✅ How-to video and photos removed.', MAIN_MENU_KEYBOARD);
+    return true;
+  }
+
+  if (photoId) {
+    try {
+      const [row] = await db.select().from(botMessages).where(eq(botMessages.key, 'howto_photos')).limit(1);
+      let list: string[] = [];
+      try {
+        const parsed: unknown = JSON.parse(row?.value ?? '[]');
+        if (Array.isArray(parsed)) list = parsed.filter((x): x is string => typeof x === 'string');
+      } catch {
+        list = [];
+      }
+      if (list.length >= 10) {
+        await sendTelegramMessage(chatId, 'You can add up to 10 photos. Send /remove to start over.');
+        return true;
+      }
+      list.push(photoId);
+      const value = JSON.stringify(list);
+      await db
+        .insert(botMessages)
+        .values({ key: 'howto_photos', value })
+        .onConflictDoUpdate({ target: botMessages.key, set: { value, updatedAt: new Date() } });
+      await sendTelegramMessage(chatId, `✅ Photo ${list.length} saved. Send more photos, or /cancel when you are done.`);
+    } catch (error) {
+      console.error('Could not save how-to photo:', error instanceof Error ? error.message : error);
+      await sendTelegramMessage(chatId, '⚠️ Could not save the photo. Please try again.');
+    }
     return true;
   }
 
   const value = fileId ?? (text && /^https?:\/\/\S+$/i.test(text) ? text : null);
   if (!value) {
-    await sendTelegramMessage(chatId, 'Please send a video file or a link that starts with https://\n\n/cancel to stop.');
+    await sendTelegramMessage(chatId, 'Please send a video, a photo, or a link that starts with https://\n\n/cancel to stop.');
     return true;
   }
 
