@@ -9,7 +9,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-// The browser sends each file in 3 MB pieces (Vercel limits one request to 4.5 MB).
+// The browser sends each file in 3 MB pieces (limits single request payload).
 // The pieces wait in the database, then the last request joins them and uploads the file to Telegram,
 // which stores it and returns a file_id. Bots can upload videos up to 50 MB and photos up to 10 MB.
 const PREFIX = 'howto_up:';

@@ -29,11 +29,14 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This project deploys on [Vercel](https://vercel.com) (no credit card required) connected to **Neon** for PostgreSQL:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push your repository to GitHub.
+2. Import the project into [Vercel](https://vercel.com).
+3. Set your environment variables (`DATABASE_URL` pointing to your Neon branch, `AUTH_SECRET`, etc.).
+4. Both Next.js and PHP serverless functions deploy with zero infrastructure bloat. Vercel can also be managed directly by AI agents using Composio's **Vercel MCP toolkit**.
 
 ---
 
