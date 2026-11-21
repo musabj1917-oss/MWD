@@ -6,6 +6,7 @@ import { WhatsAppButton } from '@/components/WhatsAppButton';
 import { TelegramButton } from '@/components/TelegramButton';
 import { PublicOnly } from '@/components/PublicOnly';
 import { ScrollReveal } from '@/components/ScrollReveal';
+import { ThreeDBackground } from '@/components/ThreeDBackground';
 import { SITE, siteUrl, telegramHref } from '@/lib/site';
 
 const normalizedUrl = siteUrl;
@@ -46,7 +47,8 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;600;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap"
         />
       </head>
-      <body className="min-h-screen flex flex-col bg-white text-black dark:bg-[#09090B] dark:text-[#EDEDED]">
+      <body className="min-h-screen flex flex-col bg-white text-black dark:bg-[#09090B] dark:text-[#EDEDED] relative">
+        <ThreeDBackground />
         <a href="#main" className="sr-only focus:not-sr-only">Skip to content</a>
         <PublicOnly><Header /></PublicOnly>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />

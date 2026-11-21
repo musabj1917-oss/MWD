@@ -773,6 +773,7 @@
   </style>
 </head>
 <body>
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
 
   <!-- Navigation with Theme Toggle -->
   <header class="nav">
@@ -1139,6 +1140,145 @@
         menuToggle.setAttribute('aria-expanded', isOpen);
       });
     }
+  </script>
+
+
+  <script>
+    // Theme toggle logic
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mwd-theme', next);
+    }
+
+    function toggleMobileMenu() {
+      const d = document.getElementById('mobile-drawer');
+      if (d) d.classList.toggle('open');
+    }
+
+    // 3D Spatial Canvas Engine
+    (function init3DBackground() {
+      const canvas = document.getElementById('bg-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      let w = (canvas.width = window.innerWidth);
+      let h = (canvas.height = window.innerHeight);
+
+      window.addEventListener('resize', () => {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      });
+
+      const numPoints = 42;
+      const points = [];
+      const fov = 350;
+
+      for (let i = 0; i < numPoints; i++) {
+        points.push({
+          x: (Math.random() - 0.5) * w * 1.4,
+          y: (Math.random() - 0.5) * h * 1.4,
+          z: Math.random() * 600 + 100,
+          vx: (Math.random() - 0.5) * 0.35,
+          vy: (Math.random() - 0.5) * 0.35,
+          vz: (Math.random() - 0.5) * 0.25,
+          size: Math.random() * 2 + 1.2
+        });
+      }
+
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let angle = 0;
+
+      function render() {
+        ctx.clearRect(0, 0, w, h);
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const cx = w / 2;
+        const cy = h / 2;
+
+        // Ambient glow gradient
+        const grad = ctx.createRadialGradient(cx, cy * 0.8, 20, cx, cy * 0.8, Math.max(w, h) * 0.7);
+        if (isDark) {
+          grad.addColorStop(0, 'rgba(224, 32, 32, 0.08)');
+          grad.addColorStop(0.5, 'rgba(18, 18, 24, 0.4)');
+          grad.addColorStop(1, 'rgba(9, 9, 11, 0)');
+        } else {
+          grad.addColorStop(0, 'rgba(224, 32, 32, 0.04)');
+          grad.addColorStop(0.6, 'rgba(245, 245, 247, 0.3)');
+          grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        }
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+
+        if (!prefersReduced) angle += 0.0012;
+
+        const proj = [];
+        for (let i = 0; i < points.length; i++) {
+          const p = points[i];
+          if (!prefersReduced) {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.z += p.vz;
+            if (p.z < 50) p.z = 700;
+            if (p.z > 700) p.z = 50;
+            if (Math.abs(p.x) > w * 0.8) p.vx *= -1;
+            if (Math.abs(p.y) > h * 0.8) p.vy *= -1;
+          }
+
+          const cos = Math.cos(angle * 0.5);
+          const sin = Math.sin(angle * 0.5);
+          const rotX = p.x * cos - (p.z - 400) * sin;
+          const rotZ = p.x * sin + (p.z - 400) * cos + 400;
+
+          const scale = fov / (fov + rotZ);
+          proj.push({
+            px: rotX * scale + cx,
+            py: p.y * scale + cy,
+            scale: scale,
+            alpha: Math.min(Math.max((700 - rotZ) / 650, 0.08), 0.85),
+            size: p.size
+          });
+        }
+
+        // Connecting lines
+        for (let i = 0; i < proj.length; i++) {
+          for (let j = i + 1; j < proj.length; j++) {
+            const p1 = proj[i];
+            const p2 = proj[j];
+            const dx = p1.px - p2.px;
+            const dy = p1.py - p2.py;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 135) {
+              const alpha = (1 - dist / 135) * Math.min(p1.alpha, p2.alpha) * (isDark ? 0.35 : 0.18);
+              ctx.beginPath();
+              ctx.moveTo(p1.px, p1.py);
+              ctx.lineTo(p2.px, p2.py);
+              ctx.strokeStyle = `rgba(224, 32, 32, ${alpha})`;
+              ctx.lineWidth = 0.8;
+              ctx.stroke();
+            }
+          }
+        }
+
+        // Draw nodes
+        for (let i = 0; i < proj.length; i++) {
+          const p = proj[i];
+          const r = Math.max(p.size * p.scale * 1.5, 1.2);
+          ctx.beginPath();
+          ctx.arc(p.px, p.py, r, 0, Math.PI * 2);
+          if (isDark) {
+            ctx.fillStyle = i % 3 === 0 ? `rgba(239, 68, 68, ${p.alpha * 0.9})` : `rgba(255, 255, 255, ${p.alpha * 0.6})`;
+          } else {
+            ctx.fillStyle = i % 3 === 0 ? `rgba(224, 32, 32, ${p.alpha * 0.7})` : `rgba(100, 116, 139, ${p.alpha * 0.5})`;
+          }
+          ctx.fill();
+        }
+
+        requestAnimationFrame(render);
+      }
+      render();
+    })();
   </script>
 
 </body>
