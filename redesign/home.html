@@ -6,6 +6,15 @@
   <meta name="description" content="MWD (Musab Web Development) designs fast, high-converting websites, e-commerce stores, and digital QR menus for growing brands in Addis Ababa, Ethiopia, and worldwide.">
   <meta name="theme-color" content="#E02020">
   
+  <script>
+    (function() {
+      const saved = localStorage.getItem('mwd-theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
   <!-- Open Graph / Social Media -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="MWD — Web Design, E-Commerce & Digital Menus | Addis Ababa">
@@ -29,12 +38,14 @@
       --primary: #E02020;
       --primary-hover: #c01818;
       --primary-glow: rgba(224, 32, 32, 0.22);
-      --dark: #0A0A0A;
-      --dark-card: #141414;
-      --light-bg: #FAFAFA;
-      --light-card: #FFFFFF;
+      --bg: #FAFAFA;
+      --card-bg: #FFFFFF;
+      --card-alt: #F4F4F5;
+      --text-main: #0A0A0A;
       --text-muted: #666666;
       --border-subtle: rgba(0, 0, 0, 0.08);
+      --nav-bg: rgba(250, 250, 250, 0.92);
+      --box-shadow: 0 16px 32px rgba(0, 0, 0, 0.05);
       --radius-sm: 8px;
       --radius-md: 14px;
       --radius-lg: 20px;
@@ -44,23 +55,34 @@
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
+    [data-theme="dark"] {
+      --bg: #09090B;
+      --card-bg: #121215;
+      --card-alt: #18181B;
+      --text-main: #F4F4F5;
+      --text-muted: #A1A1AA;
+      --border-subtle: rgba(255, 255, 255, 0.1);
+      --nav-bg: rgba(9, 9, 11, 0.92);
+      --box-shadow: 0 16px 32px rgba(0, 0, 0, 0.35);
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
     }
 
     body {
       font-family: var(--font-body);
-      background-color: var(--light-bg);
-      color: var(--dark);
+      background-color: var(--bg);
+      color: var(--text-main);
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
       padding-top: var(--safe-top);
       padding-bottom: var(--safe-bottom);
     }
 
-    /* Accessibility: Focus visible */
     :focus-visible {
       outline: 2px solid var(--primary);
       outline-offset: 3px;
@@ -70,6 +92,7 @@
       font-family: var(--font-display);
       letter-spacing: -0.025em;
       line-height: 1.2;
+      color: var(--text-main);
     }
 
     .container {
@@ -85,7 +108,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(250, 250, 250, 0.92);
+      background: var(--nav-bg);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border-subtle);
@@ -100,7 +123,7 @@
       font-family: var(--font-display);
       font-size: 1.5rem;
       font-weight: 800;
-      color: var(--dark);
+      color: var(--text-main);
       text-decoration: none;
       display: flex;
       align-items: center;
@@ -121,32 +144,55 @@
     }
     .nav-menu a {
       text-decoration: none;
-      color: #333333;
+      color: var(--text-main);
       font-weight: 500;
       font-size: 0.95rem;
-      transition: color 0.2s;
+      opacity: 0.85;
+      transition: opacity 0.2s, color 0.2s;
     }
-    .nav-menu a:hover {
+    .nav-menu a:hover, .nav-menu a.active {
+      opacity: 1;
       color: var(--primary);
     }
 
-    /* Mobile Hamburger Button */
+    /* Theme Toggle Button */
+    .theme-toggle {
+      background: var(--card-alt);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      width: 38px;
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-main);
+      transition: transform 0.2s ease;
+    }
+    .theme-toggle:hover {
+      transform: scale(1.05);
+      border-color: var(--primary);
+    }
+    .sun-icon { display: none; }
+    .moon-icon { display: block; }
+    [data-theme="dark"] .sun-icon { display: block; }
+    [data-theme="dark"] .moon-icon { display: none; }
+
     .nav-toggle {
       display: none;
-      background: none;
+      background: var(--card-alt);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-sm);
       padding: 0.5rem;
       cursor: pointer;
-      color: var(--dark);
+      color: var(--text-main);
     }
     .nav-toggle svg {
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       display: block;
     }
 
-    /* Mobile Drawer */
     @media (max-width: 768px) {
       .nav-toggle {
         display: block;
@@ -157,13 +203,13 @@
         top: 100%;
         left: 0;
         right: 0;
-        background: #FFFFFF;
+        background: var(--card-bg);
         flex-direction: column;
         align-items: flex-start;
         padding: 1.5rem;
         gap: 1.25rem;
         border-bottom: 1px solid var(--border-subtle);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
       }
       .nav-menu.is-open {
         display: flex;
@@ -199,7 +245,7 @@
     }
     .btn-primary {
       background: var(--primary);
-      color: #FFFFFF;
+      color: #FFFFFF !important;
       box-shadow: 0 4px 12px var(--primary-glow);
       border: 1px solid transparent;
     }
@@ -209,12 +255,12 @@
       box-shadow: 0 8px 20px var(--primary-glow);
     }
     .btn-secondary {
-      background: #FFFFFF;
-      color: var(--dark);
-      border: 1px solid rgba(0, 0, 0, 0.15);
+      background: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
     }
     .btn-secondary:hover {
-      border-color: var(--dark);
+      border-color: var(--primary);
       transform: translateY(-2px);
     }
 
@@ -240,14 +286,13 @@
       align-items: center;
       gap: 0.6rem;
       padding: 0.35rem 0.9rem;
-      background: #FFFFFF;
+      background: var(--card-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 999px;
       font-size: 0.82rem;
       font-weight: 600;
-      color: #333333;
+      color: var(--text-main);
       margin-bottom: 1.5rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
     .pulsing-dot {
       width: 8px;
@@ -264,7 +309,7 @@
     .hero h1 {
       font-size: clamp(2.2rem, 5vw, 3.8rem);
       font-weight: 800;
-      color: var(--dark);
+      color: var(--text-main);
       margin-bottom: 1.25rem;
     }
     .hero h1 .highlight {
@@ -283,13 +328,13 @@
       flex-wrap: wrap;
     }
 
-    /* Tangible Hero Product Showcase */
+    /* Hero Mockup Card */
     .hero-mockup-card {
-      background: #FFFFFF;
-      border: 1px solid rgba(0, 0, 0, 0.1);
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
       padding: 1.5rem;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--box-shadow);
       position: relative;
     }
     .mockup-header {
@@ -318,6 +363,7 @@
       display: flex;
       flex-direction: column;
       gap: 1.25rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
     .mockup-dish {
       display: flex;
@@ -369,7 +415,7 @@
     .trust-bar {
       border-top: 1px solid var(--border-subtle);
       border-bottom: 1px solid var(--border-subtle);
-      background: #FFFFFF;
+      background: var(--card-bg);
       padding: 2.25rem 0;
     }
     .trust-grid {
@@ -381,7 +427,7 @@
     .trust-item h3 {
       font-size: 1.8rem;
       font-weight: 800;
-      color: var(--dark);
+      color: var(--text-main);
       margin-bottom: 0.2rem;
     }
     .trust-item p {
@@ -411,7 +457,7 @@
     .section-header h2 {
       font-size: clamp(1.8rem, 4vw, 2.8rem);
       margin-bottom: 0.85rem;
-      color: var(--dark);
+      color: var(--text-main);
     }
     .section-header p {
       color: var(--text-muted);
@@ -423,7 +469,7 @@
       gap: 1.75rem;
     }
     .service-card {
-      background: #FFFFFF;
+      background: var(--card-bg);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: clamp(1.5rem, 4vw, 2.25rem);
@@ -434,14 +480,14 @@
     }
     .service-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.05);
-      border-color: rgba(224, 32, 32, 0.3);
+      box-shadow: var(--box-shadow);
+      border-color: rgba(224, 32, 32, 0.4);
     }
     .service-icon-box {
       width: 48px;
       height: 48px;
       border-radius: var(--radius-sm);
-      background: #FFF1F1;
+      background: rgba(224, 32, 32, 0.1);
       color: var(--primary);
       display: flex;
       align-items: center;
@@ -470,7 +516,7 @@
       display: flex;
       align-items: flex-start;
       gap: 0.65rem;
-      color: #333333;
+      color: var(--text-main);
       font-size: 0.88rem;
       margin-bottom: 0.65rem;
       line-height: 1.5;
@@ -497,7 +543,7 @@
 
     /* Process: How It Works Section */
     .process-section {
-      background: #FFFFFF;
+      background: var(--card-bg);
       padding: clamp(4rem, 8vw, 6.5rem) 0;
       border-top: 1px solid var(--border-subtle);
     }
@@ -509,7 +555,7 @@
     .process-step {
       position: relative;
       padding: 1.75rem;
-      background: var(--light-bg);
+      background: var(--card-alt);
       border-radius: var(--radius-md);
       border: 1px solid var(--border-subtle);
     }
@@ -532,7 +578,7 @@
 
     /* Projects Showcase */
     .projects-section {
-      background: #F4F4F5;
+      background: var(--card-alt);
       padding: clamp(4rem, 8vw, 6.5rem) 0;
       border-top: 1px solid var(--border-subtle);
     }
@@ -542,7 +588,7 @@
       gap: 1.75rem;
     }
     .project-card {
-      background: #FFFFFF;
+      background: var(--card-bg);
       border-radius: var(--radius-md);
       overflow: hidden;
       border: 1px solid var(--border-subtle);
@@ -554,17 +600,17 @@
     }
     .project-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 16px 28px rgba(0, 0, 0, 0.07);
+      box-shadow: var(--box-shadow);
     }
     .project-image-wrapper {
       width: 100%;
       aspect-ratio: 16 / 10;
       max-height: 220px;
-      background: #E4E4E7;
+      background: var(--card-alt);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #71717A;
+      color: var(--text-muted);
       font-size: 0.88rem;
       font-weight: 500;
       overflow: hidden;
@@ -598,7 +644,7 @@
     /* Testimonial Block */
     .testimonial-section {
       padding: clamp(4rem, 7vw, 5.5rem) 0;
-      background: #FFFFFF;
+      background: var(--card-bg);
       border-top: 1px solid var(--border-subtle);
     }
     .testimonial-card {
@@ -606,7 +652,7 @@
       margin: 0 auto;
       text-align: center;
       padding: 2.5rem clamp(1.5rem, 5vw, 3rem);
-      background: #FAFAFA;
+      background: var(--card-alt);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
     }
@@ -618,14 +664,14 @@
     .testimonial-quote {
       font-family: var(--font-display);
       font-size: clamp(1.15rem, 2.5vw, 1.45rem);
-      color: var(--dark);
+      color: var(--text-main);
       line-height: 1.5;
       margin-bottom: 1.5rem;
     }
     .testimonial-author {
       font-weight: 700;
       font-size: 0.95rem;
-      color: var(--dark);
+      color: var(--text-main);
     }
     .testimonial-role {
       font-size: 0.82rem;
@@ -636,7 +682,7 @@
     /* FAQ Teaser */
     .faq-teaser {
       padding: clamp(3.5rem, 7vw, 5.5rem) 0;
-      background: #FAFAFA;
+      background: var(--bg);
       border-top: 1px solid var(--border-subtle);
     }
     .faq-grid {
@@ -646,7 +692,7 @@
       margin-top: 2.5rem;
     }
     .faq-item {
-      background: #FFFFFF;
+      background: var(--card-bg);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: 1.5rem;
@@ -664,23 +710,25 @@
     /* High-Impact CTA */
     .cta-section {
       padding: clamp(4rem, 8vw, 6.5rem) 0;
-      background: #FFFFFF;
+      background: var(--card-bg);
       border-top: 1px solid var(--border-subtle);
     }
     .cta-card {
-      background: var(--dark);
+      background: #0A0A0A;
       color: #FFFFFF;
       border-radius: var(--radius-lg);
       padding: clamp(3rem, 6vw, 4.5rem) clamp(1.5rem, 5vw, 3rem);
       text-align: center;
       position: relative;
       overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
     .cta-card h2 {
       font-size: clamp(1.9rem, 4vw, 3rem);
       margin-bottom: 1rem;
       position: relative;
       z-index: 1;
+      color: #FFFFFF;
     }
     .cta-card p {
       color: #A3A3A3;
@@ -706,10 +754,9 @@
       text-align: center;
       color: var(--text-muted);
       font-size: 0.88rem;
-      background: #FAFAFA;
+      background: var(--bg);
     }
 
-    /* Accessibility: Respect Reduced Motion */
     @media (prefers-reduced-motion: reduce) {
       *, ::before, ::after {
         animation-delay: -1ms !important;
@@ -720,29 +767,32 @@
         transition-delay: 0s !important;
         transition-duration: 0s !important;
       }
-      .pulsing-dot {
-        animation: none;
-      }
-      .service-card:hover, .project-card:hover, .btn:hover {
-        transform: none !important;
-      }
+      .pulsing-dot { animation: none; }
+      .service-card:hover, .project-card:hover, .btn:hover { transform: none !important; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Navigation with Mobile Drawer Support -->
+  <!-- Navigation with Theme Toggle -->
   <header class="nav">
     <div class="container nav-inner">
       <a href="/" class="logo">
         MWD<span class="logo-dot"></span>
       </a>
-      
-      <button class="nav-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
+
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+          <svg class="sun-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg class="moon-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+
+        <button class="nav-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
 
       <ul class="nav-menu" id="navMenu">
         <li><a href="/services">Services</a></li>
@@ -785,14 +835,14 @@
           </div>
         </div>
 
-        <!-- Tangible Live Product Mockup -->
+        <!-- Live Product Mockup -->
         <div class="hero-mockup-card">
           <div class="mockup-header">
             <span class="mockup-tag">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
               Live Client Solution Preview
             </span>
-            <span style="font-size: 0.75rem; color: #737373;">Interactive Menu Demo</span>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Interactive Menu Demo</span>
           </div>
 
           <div class="mockup-item-box">
@@ -824,7 +874,7 @@
       </div>
     </section>
 
-    <!-- Tangible Value & Trust Bar -->
+    <!-- Trust Bar -->
     <section class="trust-bar">
       <div class="container">
         <div class="trust-grid">
@@ -848,7 +898,7 @@
       </div>
     </section>
 
-    <!-- Core Services Section -->
+    <!-- Core Services -->
     <section class="services-section">
       <div class="container">
         <div class="section-header">
@@ -858,7 +908,7 @@
         </div>
 
         <div class="services-grid">
-          <!-- Service 1: Web Development -->
+          <!-- Service 1 -->
           <article class="service-card">
             <div>
               <div class="service-icon-box">
@@ -877,7 +927,7 @@
             <a href="/services/website-development" class="service-link">View Website Packages →</a>
           </article>
 
-          <!-- Service 2: E-Commerce -->
+          <!-- Service 2 -->
           <article class="service-card">
             <div>
               <div class="service-icon-box">
@@ -896,7 +946,7 @@
             <a href="/services/ecommerce" class="service-link">View E-Commerce Packages →</a>
           </article>
 
-          <!-- Service 3: Digital Menus -->
+          <!-- Service 3 -->
           <article class="service-card">
             <div>
               <div class="service-icon-box">
@@ -918,7 +968,7 @@
       </div>
     </section>
 
-    <!-- How It Works: 3-Step Process -->
+    <!-- How It Works -->
     <section class="process-section">
       <div class="container">
         <div class="section-header">
@@ -949,7 +999,7 @@
       </div>
     </section>
 
-    <!-- Selected Projects Showcase -->
+    <!-- Selected Projects -->
     <section class="projects-section">
       <div class="container">
         <div class="section-header">
@@ -1043,7 +1093,7 @@
       </div>
     </section>
 
-    <!-- High-Impact Call to Action -->
+    <!-- High-Impact CTA -->
     <section class="cta-section">
       <div class="container">
         <div class="cta-card">
@@ -1062,22 +1112,31 @@
     </section>
   </main>
 
-  <!-- Consistent Brand Footer -->
+  <!-- Footer -->
   <footer>
     <div class="container">
       <p>© 2026 MWD — Musab Web Development. Addis Ababa, Ethiopia. All rights reserved.</p>
     </div>
   </footer>
 
-  <!-- Simple Accessible Mobile Nav Script -->
   <script>
-    const toggle = document.getElementById('menuToggle');
-    const menu = document.getElementById('navMenu');
+    const themeBtn = document.getElementById('themeToggle');
+    const menuToggle = document.getElementById('menuToggle');
+    const navMenu = document.getElementById('navMenu');
 
-    if (toggle && menu) {
-      toggle.addEventListener('click', () => {
-        const isOpen = menu.classList.toggle('is-open');
-        toggle.setAttribute('aria-expanded', isOpen);
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('mwd-theme', next);
+      });
+    }
+
+    if (menuToggle && navMenu) {
+      menuToggle.addEventListener('click', () => {
+        const isOpen = navMenu.classList.toggle('is-open');
+        menuToggle.setAttribute('aria-expanded', isOpen);
       });
     }
   </script>

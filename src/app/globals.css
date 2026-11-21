@@ -1,11 +1,27 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 :root {
   --color-black: #0A0A0A;
   --color-white: #FFFFFF;
   --color-red: #E02020;
   --color-muted: #6B6B6B;
   --max-width: 1200px;
+}
+
+[data-theme="dark"] {
+  --color-black: #F4F4F5;
+  --color-white: #09090B;
+  --color-muted: #A1A1AA;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-black: #F4F4F5;
+    --color-white: #09090B;
+    --color-muted: #A1A1AA;
+  }
 }
 
 /* Base theme */
@@ -55,18 +71,28 @@ a:hover {
 /* Buttons */
 .btn-primary {
   background: var(--color-red);
-  color: var(--color-white);
+  color: #FFFFFF !important;
   padding: 0.6rem 1rem;
   border-radius: 0.25rem;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-ghost {
   background: transparent;
-  border: 1px solid #e6e6e6;
+  border: 1px solid rgba(0, 0, 0, 0.15);
   color: var(--color-black);
   padding: 0.5rem 0.9rem;
   border-radius: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-theme="dark"] .btn-ghost {
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Small editorial helpers */
