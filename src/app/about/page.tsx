@@ -8,9 +8,9 @@ export const metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="overflow-x-clip bg-white dark:bg-[#09090B] text-neutral-950 dark:text-neutral-100 transition-colors">
+    <div className="overflow-x-clip bg-transparent text-neutral-950 dark:text-neutral-100 transition-colors">
       {/* Hero Header */}
-      <section className="relative py-16 lg:py-24 bg-white dark:bg-[#09090B] border-b border-black/5 dark:border-white/10">
+      <section className="relative py-16 lg:py-24 bg-transparent border-b border-black/5 dark:border-white/10">
         <div className="container">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#FAFAFA] dark:bg-[#121215] border border-black/10 dark:border-white/10 rounded-full text-xs font-semibold text-neutral-800 dark:text-neutral-200 mb-6 shadow-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -28,11 +28,11 @@ export default function AboutPage() {
       </section>
 
       {/* Studio Story / Dual Pillars */}
-      <section className="py-16 lg:py-24 bg-[#FAFAFA] dark:bg-[#09090B]">
+      <section className="py-16 lg:py-24 bg-transparent">
         <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Pillar 1 */}
-            <div className="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 rounded-3xl p-8 sm:p-10 flex flex-col justify-between shadow-xs">
+            <div className="bg-white/70 dark:bg-[#121215]/75 backdrop-blur-md border border-neutral-200 dark:border-white/10 rounded-3xl p-8 sm:p-10 flex flex-col justify-between shadow-xs">
               <div>
                 <span className="text-xs uppercase font-bold tracking-widest text-red-600 block mb-3">
                   Why We Exist
@@ -77,7 +77,7 @@ export default function AboutPage() {
       </section>
 
       {/* Tangible Metrics Banner */}
-      <section className="py-8 bg-white dark:bg-[#121215] border-y border-black/5 dark:border-white/10">
+      <section className="py-8 bg-white/70 dark:bg-[#121215]/75 backdrop-blur-md border-y border-black/5 dark:border-white/10">
         <div className="container grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           <div>
             <div className="text-2xl sm:text-3xl font-extrabold text-neutral-950 dark:text-white">100%</div>
@@ -99,7 +99,7 @@ export default function AboutPage() {
       </section>
 
       {/* Core Principles */}
-      <section className="py-20 lg:py-24 bg-white dark:bg-[#09090B]">
+      <section className="py-20 lg:py-24 bg-transparent">
         <div className="container">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <span className="text-xs uppercase font-bold tracking-widest text-red-600 block mb-3">
@@ -201,7 +201,7 @@ export default function AboutPage() {
       </section>
 
       {/* Guarantee Promise */}
-      <section className="py-16 lg:py-20 bg-white dark:bg-[#09090B] border-t border-black/5 dark:border-white/10">
+      <section className="py-16 lg:py-20 bg-transparent border-t border-black/5 dark:border-white/10">
         <div className="container">
           <div className="max-w-3xl mx-auto border border-neutral-200 dark:border-white/10 rounded-3xl p-8 sm:p-12 bg-[#FAFAFA] dark:bg-[#121215] text-center shadow-xs">
             <div className="inline-flex items-center gap-2 text-red-600 font-bold text-xs uppercase tracking-widest mb-3">
@@ -221,7 +221,7 @@ export default function AboutPage() {
       </section>
 
       {/* High-Converting CTA Banner */}
-      <section className="py-20 lg:py-24 bg-white dark:bg-[#09090B] border-t border-black/5 dark:border-white/10">
+      <section className="py-20 lg:py-24 bg-transparent border-t border-black/5 dark:border-white/10">
         <div className="container">
           <div className="relative bg-neutral-950 text-white rounded-3xl p-10 sm:p-16 text-center overflow-hidden border border-white/10">
             <div className="relative z-10 max-w-2xl mx-auto">

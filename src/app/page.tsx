@@ -25,12 +25,12 @@ export default async function Home() {
   }
 
   return (
-    <div className="overflow-x-clip bg-white dark:bg-[#09090B] text-neutral-950 dark:text-neutral-100 transition-colors">
+    <div className="overflow-x-clip bg-transparent text-neutral-950 dark:text-neutral-100 transition-colors">
       {/* Hero Section */}
-      <section className="relative py-16 lg:py-24 bg-[#FAFAFA] dark:bg-[#09090B] border-b border-black/5 dark:border-white/10">
+      <section className="relative py-16 lg:py-24 bg-transparent border-b border-black/5 dark:border-white/10">
         <div className="container grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white dark:bg-[#121215] border border-black/10 dark:border-white/10 rounded-full text-xs font-semibold text-neutral-800 dark:text-neutral-200 mb-6 shadow-xs">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/70 dark:bg-[#121215]/75 backdrop-blur-md border border-black/10 dark:border-white/10 rounded-full text-xs font-semibold text-neutral-800 dark:text-neutral-200 mb-6 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               Addis Ababa Studio • Accepting Q4/Q1 Projects
             </div>
@@ -54,7 +54,7 @@ export default async function Home() {
               </Link>
               <Link
                 href="/portfolio"
-                className="inline-flex items-center gap-2 bg-white dark:bg-[#121215] hover:bg-neutral-50 dark:hover:bg-[#18181B] text-neutral-900 dark:text-white border border-neutral-300 dark:border-white/15 font-semibold px-6 py-3.5 rounded-lg transition-all hover:-translate-y-0.5"
+                className="inline-flex items-center gap-2 bg-white/70 dark:bg-[#121215]/75 backdrop-blur-md hover:bg-neutral-50 dark:hover:bg-[#18181B] text-neutral-900 dark:text-white border border-neutral-300 dark:border-white/15 font-semibold px-6 py-3.5 rounded-lg transition-all hover:-translate-y-0.5"
               >
                 Explore Our Work
               </Link>
@@ -63,7 +63,7 @@ export default async function Home() {
 
           {/* Tangible Live Product Mockup */}
           <div className="lg:col-span-5">
-            <div className="bg-white dark:bg-[#121215] border border-neutral-200/90 dark:border-white/10 rounded-2xl p-6 shadow-xl shadow-black/5 dark:shadow-black/40">
+            <div className="bg-white/70 dark:bg-[#121215]/75 backdrop-blur-md border border-neutral-200/90 dark:border-white/10 rounded-2xl p-6 shadow-xl shadow-black/5 dark:shadow-black/40">
               <div className="flex justify-between items-center pb-3 mb-4 border-b border-neutral-100 dark:border-white/10">
                 <span className="text-xs uppercase font-bold tracking-wider text-red-600 flex items-center gap-1.5">
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -105,7 +105,7 @@ export default async function Home() {
       </section>
 
       {/* Tangible Value & Commercial Trust Bar */}
-      <section className="py-8 bg-white dark:bg-[#121215] border-b border-black/5 dark:border-white/10">
+      <section className="py-8 bg-white/70 dark:bg-[#121215]/75 backdrop-blur-md border-b border-black/5 dark:border-white/10">
         <div className="container grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           <div>
             <div className="text-2xl sm:text-3xl font-extrabold text-neutral-950 dark:text-white">2-3 Weeks</div>
@@ -127,7 +127,7 @@ export default async function Home() {
       </section>
 
       {/* Core Services Section */}
-      <section className="py-20 lg:py-24 bg-white dark:bg-[#09090B]">
+      <section className="py-20 lg:py-24 bg-transparent">
         <div className="container">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <span className="text-xs uppercase font-bold tracking-widest text-red-600 block mb-3">What We Do</span>
@@ -141,7 +141,7 @@ export default async function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Service 1: Web Development */}
-            <article className="group bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 hover:border-red-600/40 rounded-2xl p-8 flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/40">
+            <article className="group bg-white/70 dark:bg-[#121215]/75 backdrop-blur-md border border-neutral-200 dark:border-white/10 hover:border-red-600/40 rounded-2xl p-8 flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/40">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 flex items-center justify-center mb-6">
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -175,7 +175,7 @@ export default async function Home() {
             </article>
 
             {/* Service 2: E-Commerce */}
-            <article className="group bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 hover:border-red-600/40 rounded-2xl p-8 flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/40">
+            <article className="group bg-white/70 dark:bg-[#121215]/75 backdrop-blur-md border border-neutral-200 dark:border-white/10 hover:border-red-600/40 rounded-2xl p-8 flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/40">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 flex items-center justify-center mb-6">
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -209,7 +209,7 @@ export default async function Home() {
             </article>
 
             {/* Service 3: Digital Menus */}
-            <article className="group bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 hover:border-red-600/40 rounded-2xl p-8 flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/40">
+            <article className="group bg-white/70 dark:bg-[#121215]/75 backdrop-blur-md border border-neutral-200 dark:border-white/10 hover:border-red-600/40 rounded-2xl p-8 flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/40">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 flex items-center justify-center mb-6">
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -246,7 +246,7 @@ export default async function Home() {
       </section>
 
       {/* Process: How It Works */}
-      <section className="py-20 lg:py-24 bg-white dark:bg-[#121215] border-t border-black/5 dark:border-white/10">
+      <section className="py-20 lg:py-24 bg-white/70 dark:bg-[#121215]/75 backdrop-blur-md border-t border-black/5 dark:border-white/10">
         <div className="container">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <span className="text-xs uppercase font-bold tracking-widest text-red-600 block mb-3">Process</span>
@@ -290,7 +290,7 @@ export default async function Home() {
       </section>
 
       {/* Selected Projects Showcase */}
-      <section className="py-20 lg:py-24 bg-neutral-50 dark:bg-[#09090B] border-t border-black/5 dark:border-white/10">
+      <section className="py-20 lg:py-24 bg-transparent border-t border-black/5 dark:border-white/10">
         <div className="container">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
             <div>
@@ -303,7 +303,7 @@ export default async function Home() {
           </div>
 
           {projects.length === 0 ? (
-            <div className="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 rounded-2xl p-12 text-center max-w-xl mx-auto">
+            <div className="bg-white/70 dark:bg-[#121215]/75 backdrop-blur-md border border-neutral-200 dark:border-white/10 rounded-2xl p-12 text-center max-w-xl mx-auto">
               <p className="text-neutral-600 dark:text-neutral-400 mb-6 text-base">Projects are currently being updated in the portfolio.</p>
               <Link href="/request-quote" className="btn-primary">
                 Start your project today
@@ -315,7 +315,7 @@ export default async function Home() {
                 <Link
                   key={project.id}
                   href={`/portfolio/${project.slug}`}
-                  className="group bg-white dark:bg-[#121215] rounded-2xl overflow-hidden border border-neutral-200 dark:border-white/10 hover:border-red-600/40 transition-all hover:-translate-y-1 hover:shadow-lg flex flex-col"
+                  className="group bg-white/70 dark:bg-[#121215]/75 backdrop-blur-md rounded-2xl overflow-hidden border border-neutral-200 dark:border-white/10 hover:border-red-600/40 transition-all hover:-translate-y-1 hover:shadow-lg flex flex-col"
                 >
                   <div className="aspect-video bg-neutral-100 dark:bg-neutral-800 overflow-hidden relative flex items-center justify-center">
                     {project.coverImage ? (
@@ -352,7 +352,7 @@ export default async function Home() {
       </section>
 
       {/* Testimonial Section */}
-      <section className="py-16 lg:py-20 bg-white dark:bg-[#121215] border-t border-black/5 dark:border-white/10">
+      <section className="py-16 lg:py-20 bg-white/70 dark:bg-[#121215]/75 backdrop-blur-md border-t border-black/5 dark:border-white/10">
         <div className="container">
           <div className="max-w-3xl mx-auto text-center p-8 sm:p-12 bg-neutral-50 dark:bg-[#18181B] border border-neutral-200 dark:border-white/10 rounded-3xl">
             <div className="text-amber-500 text-xl mb-4">★★★★★</div>
@@ -367,7 +367,7 @@ export default async function Home() {
       </section>
 
       {/* FAQ Teaser */}
-      <section className="py-16 lg:py-20 bg-[#FAFAFA] dark:bg-[#09090B] border-t border-black/5 dark:border-white/10">
+      <section className="py-16 lg:py-20 bg-transparent border-t border-black/5 dark:border-white/10">
         <div className="container">
           <div className="text-center max-w-xl mx-auto mb-12">
             <span className="text-xs uppercase font-bold tracking-widest text-red-600 block mb-2">Questions?</span>
@@ -375,21 +375,21 @@ export default async function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 rounded-2xl p-6">
+            <div className="bg-white/70 dark:bg-[#121215]/75 backdrop-blur-md border border-neutral-200 dark:border-white/10 rounded-2xl p-6">
               <h4 className="font-bold text-neutral-950 dark:text-white text-base mb-2">How long does a website take to build?</h4>
               <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
                 Most business websites launch in 2 to 3 weeks. E-commerce platforms and custom portals take 3 to 5 weeks
                 depending on catalogue size.
               </p>
             </div>
-            <div className="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 rounded-2xl p-6">
+            <div className="bg-white/70 dark:bg-[#121215]/75 backdrop-blur-md border border-neutral-200 dark:border-white/10 rounded-2xl p-6">
               <h4 className="font-bold text-neutral-950 dark:text-white text-base mb-2">Can I accept local Ethiopian payments?</h4>
               <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
                 Yes. We integrate local payment options like Telebirr and CBE Birr, as well as international processors
                 like Stripe and PayPal.
               </p>
             </div>
-            <div className="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 rounded-2xl p-6">
+            <div className="bg-white/70 dark:bg-[#121215]/75 backdrop-blur-md border border-neutral-200 dark:border-white/10 rounded-2xl p-6">
               <h4 className="font-bold text-neutral-950 dark:text-white text-base mb-2">Do I own the website after launch?</h4>
               <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
                 Absolutely. You own 100% of the code, domain, database, and assets. We do not lock you into mandatory
@@ -401,7 +401,7 @@ export default async function Home() {
       </section>
 
       {/* High-Converting CTA Banner */}
-      <section className="py-20 lg:py-24 bg-white dark:bg-[#09090B] border-t border-black/5 dark:border-white/10">
+      <section className="py-20 lg:py-24 bg-transparent border-t border-black/5 dark:border-white/10">
         <div className="container">
           <div className="relative bg-neutral-950 text-white rounded-3xl p-10 sm:p-16 text-center overflow-hidden border border-white/10">
             <div className="relative z-10 max-w-2xl mx-auto">

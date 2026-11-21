@@ -3,49 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="description" content="MWD (Musab Web Development) designs fast, high-converting websites, e-commerce stores, and digital QR menus for growing brands in Addis Ababa, Ethiopia, and worldwide.">
-  <meta name="theme-color" content="#E02020">
-  
-  <script>
-    (function() {
-      const saved = localStorage.getItem('mwd-theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const theme = saved || (prefersDark ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', theme);
-    })();
-  </script>
-
-  <!-- Open Graph / Social Media -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="MWD — Web Design, E-Commerce & Digital Menus | Addis Ababa">
-  <meta property="og:description" content="Turn-key corporate websites, Stripe/Telebirr-ready online stores, and contactless QR menus built for measurable commercial growth.">
-  <meta property="og:site_name" content="MWD — Musab Web Development">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="MWD — Web Design, E-Commerce & Digital Menus">
-  <meta name="twitter:description" content="High-performance websites and digital solutions built in Addis Ababa.">
-
-  <!-- Favicon SVG -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23E02020'/><text x='50%' y='55%' font-family='sans-serif' font-weight='bold' font-size='48' fill='white' text-anchor='middle' dominant-baseline='middle'>M</text></svg>">
-
   <title>MWD — Web Design, E-Commerce & Digital Menus | Addis Ababa</title>
-  
+  <script>
+    (function(){var s=localStorage.getItem('mwd-theme');var p=window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.setAttribute('data-theme',s||(p?'dark':'light'));})();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
   <style>
     :root {
       --primary: #E02020;
       --primary-hover: #c01818;
-      --primary-glow: rgba(224, 32, 32, 0.22);
-      --bg: #FAFAFA;
-      --card-bg: #FFFFFF;
-      --card-alt: #F4F4F5;
+      --primary-glow: rgba(224, 32, 32, 0.25);
+      --bg-glass: rgba(255, 255, 255, 0.72);
+      --card-bg: rgba(255, 255, 255, 0.75);
+      --card-alt: rgba(244, 244, 245, 0.85);
       --text-main: #0A0A0A;
-      --text-muted: #666666;
-      --border-subtle: rgba(0, 0, 0, 0.08);
-      --nav-bg: rgba(250, 250, 250, 0.92);
-      --box-shadow: 0 16px 32px rgba(0, 0, 0, 0.05);
+      --text-muted: #555555;
+      --border-subtle: rgba(0, 0, 0, 0.09);
+      --nav-bg: rgba(255, 255, 255, 0.78);
+      --box-shadow: 0 16px 36px rgba(0, 0, 0, 0.06);
       --radius-sm: 8px;
       --radius-md: 14px;
       --radius-lg: 20px;
@@ -56,1093 +33,585 @@
     }
 
     [data-theme="dark"] {
-      --bg: #09090B;
-      --card-bg: #121215;
-      --card-alt: #18181B;
+      --bg-glass: rgba(9, 9, 11, 0.72);
+      --card-bg: rgba(18, 18, 22, 0.78);
+      --card-alt: rgba(24, 24, 29, 0.85);
       --text-main: #F4F4F5;
       --text-muted: #A1A1AA;
-      --border-subtle: rgba(255, 255, 255, 0.1);
-      --nav-bg: rgba(9, 9, 11, 0.92);
-      --box-shadow: 0 16px 32px rgba(0, 0, 0, 0.35);
+      --border-subtle: rgba(255, 255, 255, 0.09);
+      --nav-bg: rgba(9, 9, 11, 0.82);
+      --box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
+      background: transparent !important;
+      color: var(--text-main);
       font-family: var(--font-body);
-      background-color: var(--bg);
-      color: var(--text-main);
-      line-height: 1.6;
+      line-height: 1.5;
       -webkit-font-smoothing: antialiased;
-      padding-top: var(--safe-top);
+      padding-top: calc(70px + var(--safe-top));
       padding-bottom: var(--safe-bottom);
+      transition: color 0.3s ease;
+      position: relative;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    :focus-visible {
-      outline: 2px solid var(--primary);
-      outline-offset: 3px;
+    /* Fixed Full Viewport 3D Canvas Background */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      display: block;
     }
 
-    h1, h2, h3, h4 {
-      font-family: var(--font-display);
-      letter-spacing: -0.025em;
-      line-height: 1.2;
-      color: var(--text-main);
+    /* Content wrapper sits comfortably above the 3D canvas */
+    .page-content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
     }
 
     .container {
       width: 100%;
-      max-width: 1220px;
+      max-width: 1180px;
       margin: 0 auto;
-      padding-left: clamp(1rem, 4vw, 2rem);
-      padding-right: clamp(1rem, 4vw, 2rem);
+      padding: 0 20px;
     }
 
-    /* Navbar with Mobile Support */
-    .nav {
-      position: sticky;
+    /* Header Nav with Glassmorphism */
+    header.site-header {
+      position: fixed;
       top: 0;
-      z-index: 100;
+      left: 0;
+      right: 0;
+      height: 70px;
       background: var(--nav-bg);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border-subtle);
-      padding: 1rem 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
     }
+
     .nav-inner {
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: center;
+      width: 100%;
     }
-    .logo {
+
+    .brand {
       font-family: var(--font-display);
-      font-size: 1.5rem;
       font-weight: 800;
-      color: var(--text-main);
-      text-decoration: none;
-      display: flex;
+      font-size: 1.35rem;
+      letter-spacing: -0.03em;
+      display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 5px;
+      color: var(--text-main);
     }
-    .logo-dot {
+
+    .brand .dot {
       width: 8px;
       height: 8px;
-      background: var(--primary);
       border-radius: 50%;
-      display: inline-block;
+      background: var(--primary);
+      box-shadow: 0 0 10px var(--primary);
     }
-    .nav-menu {
+
+    .desktop-nav {
       display: flex;
-      gap: 1.8rem;
-      list-style: none;
       align-items: center;
+      gap: 24px;
     }
-    .nav-menu a {
-      text-decoration: none;
-      color: var(--text-main);
+
+    .desktop-nav a {
+      font-size: 0.9rem;
       font-weight: 500;
-      font-size: 0.95rem;
-      opacity: 0.85;
-      transition: opacity 0.2s, color 0.2s;
+      color: var(--text-muted);
+      transition: color 0.2s ease;
     }
-    .nav-menu a:hover, .nav-menu a.active {
-      opacity: 1;
+
+    .desktop-nav a:hover, .desktop-nav a.active {
       color: var(--primary);
     }
 
-    /* Theme Toggle Button */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Theme Toggle */
     .theme-toggle {
       background: var(--card-alt);
+      backdrop-filter: blur(10px);
       border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
+      color: var(--text-main);
       width: 38px;
       height: 38px;
-      display: inline-flex;
+      border-radius: 10px;
+      display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      color: var(--text-main);
-      transition: transform 0.2s ease;
+      transition: all 0.2s ease;
     }
     .theme-toggle:hover {
-      transform: scale(1.05);
       border-color: var(--primary);
+      color: var(--primary);
     }
-    .sun-icon { display: none; }
-    .moon-icon { display: block; }
-    [data-theme="dark"] .sun-icon { display: block; }
-    [data-theme="dark"] .moon-icon { display: none; }
 
-    .nav-toggle {
+    .hamburger-btn {
       display: none;
-      background: var(--card-alt);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      padding: 0.5rem;
-      cursor: pointer;
+      background: transparent;
+      border: none;
       color: var(--text-main);
-    }
-    .nav-toggle svg {
-      width: 22px;
-      height: 22px;
-      display: block;
+      padding: 6px;
     }
 
-    @media (max-width: 768px) {
-      .nav-toggle {
-        display: block;
-      }
-      .nav-menu {
-        display: none;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: var(--card-bg);
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 1.5rem;
-        gap: 1.25rem;
-        border-bottom: 1px solid var(--border-subtle);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-      }
-      .nav-menu.is-open {
-        display: flex;
-      }
-      .nav-menu li {
-        width: 100%;
-      }
-      .nav-menu a {
-        display: block;
-        padding: 0.4rem 0;
-        font-size: 1.05rem;
-      }
-      .nav-cta-btn {
-        width: 100%;
-        text-align: center;
-        justify-content: center;
-      }
+    /* Mobile drawer */
+    .mobile-drawer {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--bg-glass);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      z-index: 1000;
+      padding: 24px;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .mobile-drawer.open {
+      display: flex;
     }
 
     /* Buttons */
     .btn {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      font-family: var(--font-body);
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.9rem;
       font-weight: 600;
-      padding: 0.75rem 1.4rem;
+      padding: 12px 22px;
       border-radius: var(--radius-sm);
-      text-decoration: none;
-      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s;
+      transition: all 0.25s ease;
       cursor: pointer;
-      font-size: 0.95rem;
     }
     .btn-primary {
       background: var(--primary);
       color: #FFFFFF !important;
-      box-shadow: 0 4px 12px var(--primary-glow);
-      border: 1px solid transparent;
+      border: none;
+      box-shadow: 0 4px 18px var(--primary-glow);
     }
     .btn-primary:hover {
       background: var(--primary-hover);
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px var(--primary-glow);
+      box-shadow: 0 6px 24px rgba(224, 32, 32, 0.4);
     }
-    .btn-secondary {
+    .btn-outline {
       background: var(--card-bg);
+      backdrop-filter: blur(12px);
       color: var(--text-main);
       border: 1px solid var(--border-subtle);
     }
-    .btn-secondary:hover {
+    .btn-outline:hover {
       border-color: var(--primary);
+      color: var(--primary);
       transform: translateY(-2px);
     }
 
-    /* Hero Section */
-    .hero {
-      position: relative;
-      padding: clamp(3.5rem, 7vw, 6rem) 0;
-    }
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 3rem;
-      align-items: center;
-    }
-    @media (min-width: 992px) {
-      .hero-grid {
-        grid-template-columns: 1.15fr 0.85fr;
-        gap: 4rem;
-      }
-    }
-    .badge-pill {
+    /* Badges */
+    .badge {
       display: inline-flex;
       align-items: center;
-      gap: 0.6rem;
-      padding: 0.35rem 0.9rem;
-      background: var(--card-bg);
-      border: 1px solid var(--border-subtle);
-      border-radius: 999px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--text-main);
-      margin-bottom: 1.5rem;
-    }
-    .pulsing-dot {
-      width: 8px;
-      height: 8px;
-      background: #16A34A;
-      border-radius: 50%;
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
-      70% { box-shadow: 0 0 0 8px rgba(22, 163, 74, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
-    }
-    .hero h1 {
-      font-size: clamp(2.2rem, 5vw, 3.8rem);
-      font-weight: 800;
-      color: var(--text-main);
-      margin-bottom: 1.25rem;
-    }
-    .hero h1 .highlight {
-      color: var(--primary);
-    }
-    .hero p.lead {
-      font-size: clamp(1rem, 2vw, 1.15rem);
-      color: var(--text-muted);
-      margin-bottom: 2rem;
-      max-width: 580px;
-      line-height: 1.65;
-    }
-    .hero-actions {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    /* Hero Mockup Card */
-    .hero-mockup-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: 1.5rem;
-      box-shadow: var(--box-shadow);
-      position: relative;
-    }
-    .mockup-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.25rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-    .mockup-tag {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-    .mockup-item-box {
-      background: #0A0A0A;
-      color: #FFFFFF;
-      border-radius: var(--radius-md);
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .mockup-dish {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .mockup-dish h4 {
-      font-size: 1.2rem;
-      color: #FFFFFF;
-    }
-    .mockup-dish p {
-      color: #999999;
-      font-size: 0.85rem;
-      margin-top: 0.2rem;
-    }
-    .mockup-price {
-      font-family: var(--font-display);
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: #22C55E;
-    }
-    .mockup-metrics {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-top: 0.5rem;
-    }
-    .mockup-metric-card {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: var(--radius-sm);
-      padding: 0.85rem;
-    }
-    .metric-val {
-      font-family: var(--font-display);
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: #FFFFFF;
-    }
-    .metric-label {
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 50px;
       font-size: 0.72rem;
-      color: #A3A3A3;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-top: 0.2rem;
-    }
-
-    /* Trust & Commercial Benefits Bar */
-    .trust-bar {
-      border-top: 1px solid var(--border-subtle);
-      border-bottom: 1px solid var(--border-subtle);
-      background: var(--card-bg);
-      padding: 2.25rem 0;
-    }
-    .trust-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
-      gap: 1.5rem;
-      text-align: center;
-    }
-    .trust-item h3 {
-      font-size: 1.8rem;
-      font-weight: 800;
-      color: var(--text-main);
-      margin-bottom: 0.2rem;
-    }
-    .trust-item p {
-      color: var(--text-muted);
-      font-size: 0.88rem;
-      font-weight: 500;
-    }
-
-    /* Core Services Section */
-    .services-section {
-      padding: clamp(4rem, 8vw, 6.5rem) 0;
-    }
-    .section-header {
-      text-align: center;
-      max-width: 680px;
-      margin: 0 auto clamp(2.5rem, 5vw, 4rem);
-    }
-    .section-tag {
-      color: var(--primary);
-      text-transform: uppercase;
-      font-size: 0.8rem;
       font-weight: 700;
       letter-spacing: 0.08em;
-      margin-bottom: 0.6rem;
-      display: block;
-    }
-    .section-header h2 {
-      font-size: clamp(1.8rem, 4vw, 2.8rem);
-      margin-bottom: 0.85rem;
-      color: var(--text-main);
-    }
-    .section-header p {
-      color: var(--text-muted);
-      font-size: 1.05rem;
-    }
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-      gap: 1.75rem;
-    }
-    .service-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: clamp(1.5rem, 4vw, 2.25rem);
-      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .service-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--box-shadow);
-      border-color: rgba(224, 32, 32, 0.4);
-    }
-    .service-icon-box {
-      width: 48px;
-      height: 48px;
-      border-radius: var(--radius-sm);
-      background: rgba(224, 32, 32, 0.1);
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 1.5rem;
-    }
-    .service-icon-box svg {
-      width: 24px;
-      height: 24px;
-    }
-    .service-card h3 {
-      font-size: 1.45rem;
-      margin-bottom: 0.75rem;
-    }
-    .service-card p {
-      color: var(--text-muted);
-      font-size: 0.92rem;
-      margin-bottom: 1.5rem;
-      line-height: 1.6;
-    }
-    .feature-list {
-      list-style: none;
-      margin-bottom: 2rem;
-    }
-    .feature-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.65rem;
-      color: var(--text-main);
-      font-size: 0.88rem;
-      margin-bottom: 0.65rem;
-      line-height: 1.5;
-    }
-    .feature-check {
-      color: var(--primary);
-      font-weight: 700;
-      flex-shrink: 0;
-      line-height: 1.4;
-    }
-    .service-link {
-      font-weight: 600;
-      color: var(--primary);
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-size: 0.92rem;
-      transition: gap 0.2s;
-    }
-    .service-link:hover {
-      gap: 0.6rem;
-    }
-
-    /* Process: How It Works Section */
-    .process-section {
-      background: var(--card-bg);
-      padding: clamp(4rem, 8vw, 6.5rem) 0;
-      border-top: 1px solid var(--border-subtle);
-    }
-    .process-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
-      gap: 2rem;
-    }
-    .process-step {
-      position: relative;
-      padding: 1.75rem;
-      background: var(--card-alt);
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border-subtle);
-    }
-    .step-number {
-      font-family: var(--font-display);
-      font-size: 2.2rem;
-      font-weight: 800;
-      color: var(--primary);
-      margin-bottom: 0.75rem;
-    }
-    .process-step h4 {
-      font-size: 1.25rem;
-      margin-bottom: 0.5rem;
-    }
-    .process-step p {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      line-height: 1.55;
-    }
-
-    /* Projects Showcase */
-    .projects-section {
-      background: var(--card-alt);
-      padding: clamp(4rem, 8vw, 6.5rem) 0;
-      border-top: 1px solid var(--border-subtle);
-    }
-    .projects-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-      gap: 1.75rem;
-    }
-    .project-card {
-      background: var(--card-bg);
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      border: 1px solid var(--border-subtle);
-      text-decoration: none;
-      color: inherit;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-      display: flex;
-      flex-direction: column;
-    }
-    .project-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--box-shadow);
-    }
-    .project-image-wrapper {
-      width: 100%;
-      aspect-ratio: 16 / 10;
-      max-height: 220px;
-      background: var(--card-alt);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-muted);
-      font-size: 0.88rem;
-      font-weight: 500;
-      overflow: hidden;
-    }
-    .project-content {
-      padding: 1.5rem;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .project-category {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--primary);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.4rem;
-      display: block;
-    }
-    .project-card h4 {
-      font-size: 1.25rem;
-      margin-bottom: 0.4rem;
-    }
-    .project-card p {
-      color: var(--text-muted);
-      font-size: 0.88rem;
-      line-height: 1.5;
+      background: rgba(224, 32, 32, 0.1);
+      border: 1px solid rgba(224, 32, 32, 0.25);
+      color: var(--primary);
+      backdrop-filter: blur(8px);
     }
 
-    /* Testimonial Block */
-    .testimonial-section {
-      padding: clamp(4rem, 7vw, 5.5rem) 0;
+    /* Glassmorphic Cards */
+    .card {
       background: var(--card-bg);
-      border-top: 1px solid var(--border-subtle);
-    }
-    .testimonial-card {
-      max-width: 800px;
-      margin: 0 auto;
-      text-align: center;
-      padding: 2.5rem clamp(1.5rem, 5vw, 3rem);
-      background: var(--card-alt);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-    }
-    .stars {
-      color: #F59E0B;
-      font-size: 1.25rem;
-      margin-bottom: 1.25rem;
-    }
-    .testimonial-quote {
-      font-family: var(--font-display);
-      font-size: clamp(1.15rem, 2.5vw, 1.45rem);
-      color: var(--text-main);
-      line-height: 1.5;
-      margin-bottom: 1.5rem;
-    }
-    .testimonial-author {
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: var(--text-main);
-    }
-    .testimonial-role {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      margin-top: 0.2rem;
-    }
-
-    /* FAQ Teaser */
-    .faq-teaser {
-      padding: clamp(3.5rem, 7vw, 5.5rem) 0;
-      background: var(--bg);
-      border-top: 1px solid var(--border-subtle);
-    }
-    .faq-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-      gap: 1.5rem;
-      margin-top: 2.5rem;
-    }
-    .faq-item {
-      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
-      padding: 1.5rem;
+      padding: 30px;
+      transition: all 0.3s ease;
+      box-shadow: var(--box-shadow);
     }
-    .faq-item h4 {
-      font-size: 1.1rem;
-      margin-bottom: 0.6rem;
-    }
-    .faq-item p {
-      color: var(--text-muted);
-      font-size: 0.88rem;
-      line-height: 1.55;
+    .card:hover {
+      border-color: rgba(224, 32, 32, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
     }
 
-    /* High-Impact CTA */
-    .cta-section {
-      padding: clamp(4rem, 8vw, 6.5rem) 0;
-      background: var(--card-bg);
-      border-top: 1px solid var(--border-subtle);
+    /* Responsive Grid rule: zero phone overflow */
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr));
+      gap: 24px;
     }
-    .cta-card {
-      background: #0A0A0A;
-      color: #FFFFFF;
-      border-radius: var(--radius-lg);
-      padding: clamp(3rem, 6vw, 4.5rem) clamp(1.5rem, 5vw, 3rem);
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+
+    /* Section headers */
+    .section-head {
+      margin-bottom: 48px;
+      max-width: 760px;
     }
-    .cta-card h2 {
-      font-size: clamp(1.9rem, 4vw, 3rem);
-      margin-bottom: 1rem;
-      position: relative;
-      z-index: 1;
-      color: #FFFFFF;
+    .section-head h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.03em;
+      margin-top: 14px;
+      color: var(--text-main);
     }
-    .cta-card p {
-      color: #A3A3A3;
-      font-size: clamp(0.95rem, 2vw, 1.15rem);
-      max-width: 600px;
-      margin: 0 auto 2.25rem;
-      position: relative;
-      z-index: 1;
-    }
-    .cta-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-      position: relative;
-      z-index: 1;
+    .section-head p {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-top: 14px;
+      line-height: 1.6;
     }
 
     /* Footer */
-    footer {
-      border-top: 1px solid var(--border-subtle);
-      padding: 2.5rem 0;
-      text-align: center;
-      color: var(--text-muted);
+    footer.site-footer {
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      color: #FFFFFF;
+      padding: 60px 0 30px;
+      margin-top: 80px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 36px;
+      margin-bottom: 50px;
+    }
+    .footer-col h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #FFFFFF;
+    }
+    .footer-col ul {
+      list-style: none;
+    }
+    .footer-col li {
+      margin-bottom: 10px;
+    }
+    .footer-col a {
+      color: #9E9EA4;
       font-size: 0.88rem;
-      background: var(--bg);
+      transition: color 0.2s ease;
+    }
+    .footer-col a:hover {
+      color: #FFFFFF;
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      *, ::before, ::after {
-        animation-delay: -1ms !important;
-        animation-duration: 1ms !important;
-        animation-iteration-count: 1 !important;
-        background-attachment: initial !important;
-        scroll-behavior: auto !important;
-        transition-delay: 0s !important;
-        transition-duration: 0s !important;
+    @media (max-width: 768px) {
+      .desktop-nav, .desktop-quote-btn {
+        display: none;
       }
-      .pulsing-dot { animation: none; }
-      .service-card:hover, .project-card:hover, .btn:hover { transform: none !important; }
+      .hamburger-btn {
+        display: block;
+      }
     }
-  </style>
+</style>
 </head>
 <body>
   <canvas id="bg-canvas" aria-hidden="true"></canvas>
 
-  <!-- Navigation with Theme Toggle -->
-  <header class="nav">
+  <div class="page-content">
+    
+  <header class="site-header">
     <div class="container nav-inner">
-      <a href="/" class="logo">
-        MWD<span class="logo-dot"></span>
+      <a href="mwd_home_redesign.html" class="brand">
+        MWD<span class="dot"></span>
       </a>
 
-      <div style="display: flex; align-items: center; gap: 0.75rem;">
-        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-          <svg class="sun-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-          <svg class="moon-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+      <nav class="desktop-nav" aria-label="Main Navigation">
+        <a href="mwd_home_redesign.html" class="active">Home</a><a href="mwd_services_redesign.html" class="">Services</a><a href="mwd_portfolio_redesign.html" class="">Portfolio</a><a href="mwd_pricing_redesign.html" class="">Pricing</a><a href="mwd_about_redesign.html" class="">About</a><a href="mwd_faq_redesign.html" class="">FAQ</a><a href="mwd_contact_redesign.html" class="">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
         </button>
 
-        <button class="nav-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
+        <a href="mwd_quote_redesign.html" class="btn btn-primary desktop-quote-btn" style="padding:8px 16px;font-size:0.82rem;">
+          Get a Quote
+        </a>
+
+        <button class="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Open mobile menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
         </button>
       </div>
-
-      <ul class="nav-menu" id="navMenu">
-        <li><a href="/services">Services</a></li>
-        <li><a href="/portfolio">Portfolio</a></li>
-        <li><a href="/pricing">Pricing</a></li>
-        <li><a href="/about">About</a></li>
-        <li><a href="/faq">FAQ</a></li>
-        <li><a href="/contact">Contact</a></li>
-        <li>
-          <a href="/request-quote" class="btn btn-primary nav-cta-btn" style="padding: 0.5rem 1.1rem; font-size: 0.88rem;">
-            Request Quote
-          </a>
-        </li>
-      </ul>
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <main>
-    <section class="hero">
-      <div class="container hero-grid">
-        <div class="hero-content">
-          <div class="badge-pill">
-            <span class="pulsing-dot"></span>
-            Addis Ababa Studio • Accepting Q4/Q1 Projects
+  <div id="mobile-drawer" class="mobile-drawer">
+    <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:16px;border-bottom:1px solid var(--border-subtle);">
+        <span class="brand">MWD<span class="dot"></span></span>
+        <button onclick="toggleMobileMenu()" style="background:none;border:none;color:var(--text-main);padding:8px;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <nav style="display:flex;flex-direction:column;margin-top:20px;">
+        <a href="mwd_home_redesign.html" onclick="toggleMobileMenu()" style="font-size:1.25rem;font-weight:700;padding:12px 0;border-bottom:1px solid var(--border-subtle);">Home</a><a href="mwd_services_redesign.html" onclick="toggleMobileMenu()" style="font-size:1.25rem;font-weight:700;padding:12px 0;border-bottom:1px solid var(--border-subtle);">Services</a><a href="mwd_portfolio_redesign.html" onclick="toggleMobileMenu()" style="font-size:1.25rem;font-weight:700;padding:12px 0;border-bottom:1px solid var(--border-subtle);">Portfolio</a><a href="mwd_pricing_redesign.html" onclick="toggleMobileMenu()" style="font-size:1.25rem;font-weight:700;padding:12px 0;border-bottom:1px solid var(--border-subtle);">Pricing</a><a href="mwd_about_redesign.html" onclick="toggleMobileMenu()" style="font-size:1.25rem;font-weight:700;padding:12px 0;border-bottom:1px solid var(--border-subtle);">About</a><a href="mwd_faq_redesign.html" onclick="toggleMobileMenu()" style="font-size:1.25rem;font-weight:700;padding:12px 0;border-bottom:1px solid var(--border-subtle);">FAQ</a><a href="mwd_contact_redesign.html" onclick="toggleMobileMenu()" style="font-size:1.25rem;font-weight:700;padding:12px 0;border-bottom:1px solid var(--border-subtle);">Contact</a>
+      </nav>
+    </div>
+    <div style="padding-top:20px;">
+      <a href="mwd_quote_redesign.html" class="btn btn-primary" style="width:100%;">Request a Proposal</a>
+    </div>
+  </div>
+
+
+    <main class="container" style="padding-top:40px;">
+      <!-- Hero Section -->
+      <section style="display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 340px), 1fr));gap:48px;align-items:center;margin-bottom:80px;">
+        <div>
+          <div class="badge" style="margin-bottom:16px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--primary);display:inline-block;box-shadow:0 0 8px var(--primary);"></span>
+            Addis Ababa Studio &bull; Accepting Q4/Q1 Projects
           </div>
-          <h1>
-            We build fast, high-converting websites, stores, and QR menus for <span class="highlight">growing businesses.</span>
+          <h1 style="font-family:var(--font-display);font-size:clamp(2.5rem, 5.5vw, 3.8rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;margin-bottom:20px;">
+            We build fast, high-converting websites, stores, and QR menus for <span style="color:var(--primary);">growing businesses.</span>
           </h1>
-          <p class="lead">
-            From bespoke corporate sites to automated restaurant menus and Stripe-powered online stores — we deliver turn-key digital products that win customers and eliminate monthly agency lock-in.
+          <p style="font-size:1.15rem;color:var(--text-muted);line-height:1.6;margin-bottom:32px;">
+            From bespoke corporate platforms to contactless QR dining menus and Stripe/Telebirr-powered online stores — we engineer turn-key digital solutions that eliminate monthly agency lock-in.
           </p>
-          <div class="hero-actions">
-            <a href="/request-quote" class="btn btn-primary">
-              Request a Free Quote <span>→</span>
+          <div style="display:flex;flex-wrap:wrap;gap:14px;">
+            <a href="mwd_quote_redesign.html" class="btn btn-primary" style="padding:14px 28px;font-size:1rem;">
+              Request a Free Quote &rarr;
             </a>
-            <a href="/portfolio" class="btn btn-secondary">
+            <a href="mwd_portfolio_redesign.html" class="btn btn-outline" style="padding:14px 28px;font-size:1rem;">
               Explore Our Work
             </a>
           </div>
         </div>
 
-        <!-- Live Product Mockup -->
-        <div class="hero-mockup-card">
-          <div class="mockup-header">
-            <span class="mockup-tag">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-              Live Client Solution Preview
-            </span>
-            <span style="font-size: 0.75rem; color: var(--text-muted);">Interactive Menu Demo</span>
+        <!-- Live Interactive Mockup Card -->
+        <div class="card" style="padding:28px;border:1px solid rgba(224,32,32,0.3);position:relative;overflow:hidden;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <span style="font-size:0.75rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.06em;">Live Solution Preview</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);background:var(--card-alt);padding:4px 8px;border-radius:6px;">Interactive Menu Demo</span>
           </div>
-
-          <div class="mockup-item-box">
-            <div class="mockup-dish">
+          <div style="background:var(--card-alt);border:1px solid var(--border-subtle);border-radius:12px;padding:20px;margin-bottom:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
               <div>
-                <h4>Specialty Pour-Over Coffee</h4>
-                <p>Single-origin Yirgacheffe, floral & citrus notes</p>
+                <h4 style="font-size:1.05rem;font-weight:700;">Specialty Pour-Over Coffee</h4>
+                <p style="font-size:0.8rem;color:var(--text-muted);">Single-origin Yirgacheffe, floral & citrus notes</p>
               </div>
-              <div class="mockup-price">$4.50</div>
+              <span style="font-size:1.1rem;font-weight:800;color:var(--primary);">$4.50</span>
             </div>
-
-            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.78rem; color: #A3A3A3;">
+            <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-muted);padding-top:10px;border-top:1px solid var(--border-subtle);">
               <span>⚡ Contactless QR Scan Active</span>
-              <span style="color: #22C55E;">✓ Instant Update Enabled</span>
+              <span style="color:#22C55E;font-weight:600;">✓ Instant Real-time Updates</span>
             </div>
-
-            <div class="mockup-metrics">
-              <div class="mockup-metric-card">
-                <div class="metric-val">&lt; 1s</div>
-                <div class="metric-label">Mobile Load Time</div>
-              </div>
-              <div class="mockup-metric-card">
-                <div class="metric-val">+38%</div>
-                <div class="metric-label">Average Order Value</div>
-              </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div style="background:var(--card-alt);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;text-align:center;">
+              <span style="font-size:1.4rem;font-weight:800;color:var(--text-main);display:block;">&lt; 1s</span>
+              <span style="font-size:0.72rem;color:var(--text-muted);">Mobile Load Time</span>
+            </div>
+            <div style="background:var(--card-alt);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;text-align:center;">
+              <span style="font-size:1.4rem;font-weight:800;color:var(--primary);display:block;">+38%</span>
+              <span style="font-size:0.72rem;color:var(--text-muted);">Average Order Value</span>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Trust Bar -->
-    <section class="trust-bar">
-      <div class="container">
-        <div class="trust-grid">
-          <div class="trust-item">
-            <h3>2-3 Weeks</h3>
-            <p>Typical Project Turnaround</p>
-          </div>
-          <div class="trust-item">
-            <h3>&lt; 24 Hours</h3>
-            <p>Guaranteed Scope & Quote Reply</p>
-          </div>
-          <div class="trust-item">
-            <h3>Zero Lock-In</h3>
-            <p>100% Code & Asset Ownership</p>
-          </div>
-          <div class="trust-item">
-            <h3>Local & Global</h3>
-            <p>Telebirr, CBE & Stripe Integration</p>
+      <!-- Trust Bar -->
+      <section style="margin-bottom:80px;">
+        <div class="card" style="padding:30px;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 200px), 1fr));gap:24px;text-align:center;">
+            <div>
+              <h3 style="font-size:1.8rem;font-weight:800;color:var(--primary);">&lt; 10 Days</h3>
+              <p style="font-size:0.85rem;color:var(--text-muted);margin-top:4px;">Average Sprint Delivery</p>
+            </div>
+            <div>
+              <h3 style="font-size:1.8rem;font-weight:800;color:var(--primary);">&lt; 2 Hours</h3>
+              <p style="font-size:0.85rem;color:var(--text-muted);margin-top:4px;">Inquiry Response Guarantee</p>
+            </div>
+            <div>
+              <h3 style="font-size:1.8rem;font-weight:800;color:var(--primary);">100%</h3>
+              <p style="font-size:0.85rem;color:var(--text-muted);margin-top:4px;">Source Code Ownership</p>
+            </div>
+            <div>
+              <h3 style="font-size:1.8rem;font-weight:800;color:var(--primary);">Telebirr & Stripe</h3>
+              <p style="font-size:0.85rem;color:var(--text-muted);margin-top:4px;">Local & Global Payments</p>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Core Services -->
-    <section class="services-section">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-tag">What We Do</span>
+      <!-- Services Grid -->
+      <section style="margin-bottom:80px;">
+        <div class="section-head">
+          <div class="badge">What We Do</div>
           <h2>Focused Services Engineered to Drive Revenue</h2>
-          <p>We avoid bloated templates. Every solution is purpose-built to deliver commercial results.</p>
+          <p>We avoid bloated templates. Every solution is purpose-built with Next.js and Neon Postgres to deliver commercial results.</p>
         </div>
 
-        <div class="services-grid">
-          <!-- Service 1 -->
-          <article class="service-card">
+        <div class="grid-cards">
+          <article class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
             <div>
-              <div class="service-icon-box">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                </svg>
-              </div>
-              <h3>Website Development</h3>
-              <p>Custom business portals, portfolios, and landing pages designed to establish authority and generate qualified client inquiries.</p>
-              <ul class="feature-list">
-                <li><span class="feature-check">✓</span> Next.js architecture with instant sub-second page loads</li>
-                <li><span class="feature-check">✓</span> Semantic SEO structure for Google search visibility</li>
-                <li><span class="feature-check">✓</span> Custom lead-capture forms with email & Telegram alerts</li>
+              <span style="color:var(--primary);font-size:0.75rem;font-weight:700;text-transform:uppercase;">Flagship Engineering</span>
+              <h3 style="font-size:1.4rem;font-weight:700;margin:8px 0 12px;">Website Development</h3>
+              <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:16px;">
+                Custom business portals, portfolios, and landing pages designed to establish authority and generate qualified client inquiries.
+              </p>
+              <ul style="list-style:none;font-size:0.82rem;display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+                <li style="display:flex;align-items:flex-start;gap:8px;"><span style="color:var(--primary);">✓</span> Next.js architecture with instant sub-second page loads</li>
+                <li style="display:flex;align-items:flex-start;gap:8px;"><span style="color:var(--primary);">✓</span> Semantic SEO structure for Google search visibility</li>
+                <li style="display:flex;align-items:flex-start;gap:8px;"><span style="color:var(--primary);">✓</span> Custom lead-capture forms with email & Telegram alerts</li>
               </ul>
             </div>
-            <a href="/services/website-development" class="service-link">View Website Packages →</a>
+            <a href="mwd_services_redesign.html" style="font-size:0.85rem;font-weight:700;color:var(--primary);">Explore Websites &rarr;</a>
           </article>
 
-          <!-- Service 2 -->
-          <article class="service-card">
+          <article class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
             <div>
-              <div class="service-icon-box">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-              </div>
-              <h3>E-Commerce Stores</h3>
-              <p>Scalable, conversion-optimized online storefronts with seamless checkouts, automated customer receipts, and inventory tools.</p>
-              <ul class="feature-list">
-                <li><span class="feature-check">✓</span> International Stripe checkouts + domestic payment options</li>
-                <li><span class="feature-check">✓</span> Mobile-optimized shopping cart with zero friction</li>
-                <li><span class="feature-check">✓</span> Simple admin panel for adding products & orders</li>
+              <span style="color:var(--primary);font-size:0.75rem;font-weight:700;text-transform:uppercase;">Revenue Engine</span>
+              <h3 style="font-size:1.4rem;font-weight:700;margin:8px 0 12px;">E-Commerce Stores</h3>
+              <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:16px;">
+                Scalable, conversion-optimized online storefronts with seamless checkouts, automated customer receipts, and inventory tools.
+              </p>
+              <ul style="list-style:none;font-size:0.82rem;display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+                <li style="display:flex;align-items:flex-start;gap:8px;"><span style="color:var(--primary);">✓</span> International Stripe checkout + local Telebirr readiness</li>
+                <li style="display:flex;align-items:flex-start;gap:8px;"><span style="color:var(--primary);">✓</span> Mobile-optimized slide-out cart with zero friction</li>
+                <li style="display:flex;align-items:flex-start;gap:8px;"><span style="color:var(--primary);">✓</span> Simple admin panel for adding products & orders</li>
               </ul>
             </div>
-            <a href="/services/ecommerce" class="service-link">View E-Commerce Packages →</a>
+            <a href="mwd_services_redesign.html" style="font-size:0.85rem;font-weight:700;color:var(--primary);">Explore E-Commerce &rarr;</a>
           </article>
 
-          <!-- Service 3 -->
-          <article class="service-card">
+          <article class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
             <div>
-              <div class="service-icon-box">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3>Digital QR Menus</h3>
-              <p>Contactless, instant-loading digital menus for restaurants, hotels, and cafes. Eliminate paper reprint expenses entirely.</p>
-              <ul class="feature-list">
-                <li><span class="feature-check">✓</span> Scans instantly from camera with zero app download</li>
-                <li><span class="feature-check">✓</span> Update dishes, specials, and prices in real-time</li>
-                <li><span class="feature-check">✓</span> High-resolution photo galleries and dietary filters</li>
+              <span style="color:var(--primary);font-size:0.75rem;font-weight:700;text-transform:uppercase;">Hospitality Tech</span>
+              <h3 style="font-size:1.4rem;font-weight:700;margin:8px 0 12px;">Digital QR Menus</h3>
+              <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:16px;">
+                Contactless, instant-loading digital menus for restaurants, hotels, and cafes. Eliminate paper reprint expenses entirely.
+              </p>
+              <ul style="list-style:none;font-size:0.82rem;display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+                <li style="display:flex;align-items:flex-start;gap:8px;"><span style="color:var(--primary);">✓</span> Scans instantly from camera with zero app download</li>
+                <li style="display:flex;align-items:flex-start;gap:8px;"><span style="color:var(--primary);">✓</span> Update dishes, specials, and prices in real-time</li>
+                <li style="display:flex;align-items:flex-start;gap:8px;"><span style="color:var(--primary);">✓</span> High-resolution photo galleries and dietary filters</li>
               </ul>
             </div>
-            <a href="/services/digital-menus" class="service-link">View QR Menu Packages →</a>
+            <a href="mwd_services_redesign.html" style="font-size:0.85rem;font-weight:700;color:var(--primary);">Explore Menus &rarr;</a>
           </article>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- How It Works -->
-    <section class="process-section">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-tag">Process</span>
-          <h2>A Transparent, Predictable Workflow</h2>
-          <p>No unexpected invoices or endless delays. Here is how we take your project from idea to live site.</p>
-        </div>
-
-        <div class="process-grid">
-          <div class="process-step">
-            <div class="step-number">01</div>
-            <h4>Discovery & Fixed Quote</h4>
-            <p>We review your goals, recommend the right technical stack, and deliver a detailed scope breakdown with a guaranteed price and deadline.</p>
-          </div>
-
-          <div class="process-step">
-            <div class="step-number">02</div>
-            <h4>Design & Rapid Build</h4>
-            <p>We develop high-fidelity mockups, gather your feedback, and build clean, scalable Next.js code tested across all mobile devices.</p>
-          </div>
-
-          <div class="process-step">
-            <div class="step-number">03</div>
-            <h4>Launch & Ownership Handover</h4>
-            <p>We configure your custom domain, connect analytics and payment gateways, and hand over 100% of the code and credentials.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Selected Projects -->
-    <section class="projects-section">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-tag">Case Studies</span>
-          <h2>Selected Recent Projects</h2>
-          <p>Explore examples of custom websites and digital platforms built for client results.</p>
-        </div>
-
-        <div class="projects-grid">
-          <div class="project-card">
-            <div class="project-image-wrapper">
-              <span>E-Commerce Case Study</span>
-            </div>
-            <div class="project-content">
-              <div>
-                <span class="project-category">E-Commerce & Retail</span>
-                <h4>Luxe Fashion Studio</h4>
-                <p>Full online storefront with automated inventory synchronization and localized checkout flows.</p>
-              </div>
-              <span class="service-link" style="margin-top: 1.25rem;">View Project Details →</span>
-            </div>
-          </div>
-
-          <div class="project-card">
-            <div class="project-image-wrapper">
-              <span>Hospitality Case Study</span>
-            </div>
-            <div class="project-content">
-              <div>
-                <span class="project-category">Hospitality & Dining</span>
-                <h4>Grand Serena Cafe & Lounge</h4>
-                <p>Bilingual QR menu system serving over 1,200 daily diners with instant price synchronization.</p>
-              </div>
-              <span class="service-link" style="margin-top: 1.25rem;">View Project Details →</span>
-            </div>
-          </div>
-
-          <div class="project-card">
-            <div class="project-image-wrapper">
-              <span>Corporate Portal</span>
-            </div>
-            <div class="project-content">
-              <div>
-                <span class="project-category">Corporate & Advisory</span>
-                <h4>Horizon Financial Group</h4>
-                <p>Bespoke corporate website with encrypted inquiry capture and high-ranking SEO schema.</p>
-              </div>
-              <span class="service-link" style="margin-top: 1.25rem;">View Project Details →</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Testimonial Section -->
-    <section class="testimonial-section">
-      <div class="container">
-        <div class="testimonial-card">
-          <div class="stars">★★★★★</div>
-          <blockquote class="testimonial-quote">
-            "MWD built our restaurant's digital menu and website in less than two weeks. It eliminated menu printing costs immediately, and updating specials takes our manager under two minutes from a phone."
-          </blockquote>
-          <div class="testimonial-author">Yonas T.</div>
-          <div class="testimonial-role">Managing Director, Addis Ababa Restaurant Group</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ Teaser -->
-    <section class="faq-teaser">
-      <div class="container">
-        <div class="section-header" style="margin-bottom: 2rem;">
-          <span class="section-tag">Questions?</span>
-          <h2>Frequently Asked Questions</h2>
-        </div>
-
-        <div class="faq-grid">
-          <div class="faq-item">
-            <h4>How long does a website take to build?</h4>
-            <p>Most standard business websites are completed in 2 to 3 weeks. E-commerce platforms and complex custom portals typically require 3 to 5 weeks depending on catalogue size.</p>
-          </div>
-          <div class="faq-item">
-            <h4>Can I accept local Ethiopian payments?</h4>
-            <p>Yes. We integrate local payment options such as Telebirr and CBE Birr, as well as international processors like Stripe and PayPal for overseas clients.</p>
-          </div>
-          <div class="faq-item">
-            <h4>Do I own the website after launch?</h4>
-            <p>Absolutely. You own 100% of the code, domain, database, and assets. We do not lock you into expensive mandatory monthly maintenance contracts.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- High-Impact CTA -->
-    <section class="cta-section">
-      <div class="container">
-        <div class="cta-card">
-          <h2>Ready to Build a Website That Drives Real Results?</h2>
-          <p>Tell us about your project vision. We will deliver a bespoke scope proposal and guaranteed timetable within 24 hours.</p>
-          <div class="cta-buttons">
-            <a href="/request-quote" class="btn btn-primary" style="padding: 0.9rem 2rem; font-size: 1.05rem;">
+      <!-- CTA Block -->
+      <section style="margin-bottom:80px;">
+        <div class="card" style="padding:48px;text-align:center;border:1px solid rgba(224,32,32,0.3);">
+          <h2 style="font-family:var(--font-display);font-size:clamp(1.8rem, 4vw, 2.6rem);font-weight:800;margin-bottom:14px;">
+            Ready to Build a Website That Drives Real Results?
+          </h2>
+          <p style="font-size:1rem;color:var(--text-muted);max-width:600px;margin:0 auto 28px;">
+            Tell us about your project vision. We will deliver a bespoke scope proposal and guaranteed timetable within 2 hours.
+          </p>
+          <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:14px;">
+            <a href="mwd_quote_redesign.html" class="btn btn-primary" style="padding:14px 28px;font-size:1rem;">
               Request Your Free Quote
             </a>
-            <a href="https://wa.me/251924502450" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="padding: 0.9rem 2rem; font-size: 1.05rem;">
-              Chat Directly on WhatsApp
+            <a href="https://wa.me/251911000000" target="_blank" class="btn btn-outline" style="padding:14px 28px;font-size:1rem;">
+              Chat on WhatsApp
             </a>
           </div>
         </div>
-      </div>
-    </section>
-  </main>
+      </section>
+    </main>
 
-  <!-- Footer -->
-  <footer>
+    
+  <footer class="site-footer">
     <div class="container">
-      <p>© 2026 MWD — Musab Web Development. Addis Ababa, Ethiopia. All rights reserved.</p>
+      <div class="footer-grid">
+        <div style="grid-column: span 1.5;">
+          <span style="font-family:var(--font-display);font-weight:800;font-size:1.4rem;">MWD<span style="color:var(--primary);">.</span></span>
+          <p style="color:#9E9EA4;font-size:0.85rem;margin-top:12px;line-height:1.6;">
+            Musab Web Development crafts bespoke business websites, high-conversion e-commerce stores, and digital menus in Addis Ababa, Ethiopia.
+          </p>
+        </div>
+        <div class="footer-col">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="mwd_services_redesign.html">Website Development</a></li>
+            <li><a href="mwd_services_redesign.html">E-Commerce</a></li>
+            <li><a href="mwd_services_redesign.html">Digital Menus</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Pages</h4>
+          <ul>
+            <li><a href="mwd_about_redesign.html">About MWD</a></li>
+            <li><a href="mwd_portfolio_redesign.html">Selected Work</a></li>
+            <li><a href="mwd_pricing_redesign.html">Pricing Packages</a></li>
+            <li><a href="mwd_faq_redesign.html">FAQ</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Direct Connect</h4>
+          <ul>
+            <li><a href="https://wa.me/251911000000" target="_blank">WhatsApp Chat</a></li>
+            <li><a href="https://t.me/musab" target="_blank">Telegram @musab</a></li>
+            <li><a href="mwd_contact_redesign.html">Direct Contact Form</a></li>
+          </ul>
+        </div>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:24px;text-align:center;font-size:0.8rem;color:#71717A;">
+        &copy; 2026 Musab Web Development (MWD). All rights reserved. Built with Next.js & Lakebase Neon Postgres.
+      </div>
     </div>
   </footer>
 
-  <script>
-    const themeBtn = document.getElementById('themeToggle');
-    const menuToggle = document.getElementById('menuToggle');
-    const navMenu = document.getElementById('navMenu');
+  </div>
 
-    if (themeBtn) {
-      themeBtn.addEventListener('click', () => {
-        const current = document.documentElement.getAttribute('data-theme') || 'light';
-        const next = current === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('mwd-theme', next);
-      });
-    }
-
-    if (menuToggle && navMenu) {
-      menuToggle.addEventListener('click', () => {
-        const isOpen = navMenu.classList.toggle('is-open');
-        menuToggle.setAttribute('aria-expanded', isOpen);
-      });
-    }
-  </script>
-
-
+  
   <script>
     // Theme toggle logic
     function toggleTheme() {
@@ -1157,8 +626,8 @@
       if (d) d.classList.toggle('open');
     }
 
-    // 3D Spatial Canvas Engine
-    (function init3DBackground() {
+    // COMPLETE 3D SPATIAL WORLD ENGINE
+    (function init3DWorld() {
       const canvas = document.getElementById('bg-canvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
@@ -1167,110 +636,278 @@
       let w = (canvas.width = window.innerWidth);
       let h = (canvas.height = window.innerHeight);
 
+      let scrollY = window.scrollY || 0;
+      let targetScrollY = scrollY;
+      let mouseX = w / 2;
+      let mouseY = h / 2;
+      let targetMouseX = mouseX;
+      let targetMouseY = mouseY;
+
       window.addEventListener('resize', () => {
         w = canvas.width = window.innerWidth;
         h = canvas.height = window.innerHeight;
-      });
+      }, { passive: true });
 
-      const numPoints = 42;
+      window.addEventListener('scroll', () => {
+        targetScrollY = window.scrollY || 0;
+      }, { passive: true });
+
+      window.addEventListener('mousemove', (e) => {
+        targetMouseX = e.clientX;
+        targetMouseY = e.clientY;
+      }, { passive: true });
+
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // 3D Wireframe Cube Definition
+      const cubeVerts = [
+        [-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
+        [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]
+      ];
+      const cubeEdges = [
+        [0, 1], [1, 2], [2, 3], [3, 0],
+        [4, 5], [5, 6], [6, 7], [7, 4],
+        [0, 4], [1, 5], [2, 6], [3, 7]
+      ];
+
+      // 7 Floating 3D Wireframe Polyhedra spanning the entire scroll length
+      const shapes = [
+        { x: -w * 0.35, y: -h * 0.15, z: 420, size: 75, rx: 0.2, ry: 0.3, rz: 0.1, spdX: 0.007, spdY: 0.009 },
+        { x: w * 0.38, y: -h * 0.05, z: 340, size: 90, rx: 0.5, ry: 0.1, rz: 0.4, spdX: 0.006, spdY: 0.008 },
+        { x: -w * 0.36, y: h * 0.45, z: 480, size: 85, rx: 0.1, ry: 0.4, rz: 0.2, spdX: 0.008, spdY: 0.006 },
+        { x: w * 0.34, y: h * 0.55, z: 390, size: 80, rx: 0.4, ry: 0.2, rz: 0.5, spdX: 0.009, spdY: 0.007 },
+        { x: -w * 0.15, y: h * 1.05, z: 520, size: 95, rx: 0.3, ry: 0.5, rz: 0.2, spdX: 0.005, spdY: 0.006 },
+        { x: w * 0.32, y: h * 1.35, z: 430, size: 85, rx: 0.2, ry: 0.1, rz: 0.3, spdX: 0.007, spdY: 0.008 },
+        { x: -w * 0.3, y: h * 1.7, z: 460, size: 90, rx: 0.3, ry: 0.4, rz: 0.1, spdX: 0.008, spdY: 0.005 }
+      ];
+
+      // 55 Floating Constellation Nodes
+      const numPoints = 55;
       const points = [];
-      const fov = 350;
-
       for (let i = 0; i < numPoints; i++) {
         points.push({
-          x: (Math.random() - 0.5) * w * 1.4,
-          y: (Math.random() - 0.5) * h * 1.4,
-          z: Math.random() * 600 + 100,
+          x: (Math.random() - 0.5) * w * 1.8,
+          y: (Math.random() - 0.5) * h * 2.5,
+          z: Math.random() * 850 + 120,
           vx: (Math.random() - 0.5) * 0.35,
           vy: (Math.random() - 0.5) * 0.35,
           vz: (Math.random() - 0.5) * 0.25,
-          size: Math.random() * 2 + 1.2
+          size: Math.random() * 2.2 + 1.2
         });
       }
 
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      let angle = 0;
+      const fov = 400;
+      let gridOffset = 0;
 
       function render() {
-        ctx.clearRect(0, 0, w, h);
+        scrollY += (targetScrollY - scrollY) * 0.08;
+        mouseX += (targetMouseX - mouseX) * 0.05;
+        mouseY += (targetMouseY - mouseY) * 0.05;
+
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         const cx = w / 2;
         const cy = h / 2;
 
-        // Ambient glow gradient
-        const grad = ctx.createRadialGradient(cx, cy * 0.8, 20, cx, cy * 0.8, Math.max(w, h) * 0.7);
+        const camTiltX = ((mouseY - cy) / h) * 0.15 + (scrollY * 0.0003);
+        const camTiltY = ((mouseX - cx) / w) * 0.15;
+
+        // Base Canvas Shading
         if (isDark) {
-          grad.addColorStop(0, 'rgba(224, 32, 32, 0.08)');
-          grad.addColorStop(0.5, 'rgba(18, 18, 24, 0.4)');
-          grad.addColorStop(1, 'rgba(9, 9, 11, 0)');
+          ctx.fillStyle = '#09090B';
+          ctx.fillRect(0, 0, w, h);
+
+          const g1 = ctx.createRadialGradient(cx + (mouseX - cx) * 0.15, cy * 0.7, 30, cx, cy * 0.7, Math.max(w, h) * 0.75);
+          g1.addColorStop(0, 'rgba(224, 32, 32, 0.12)');
+          g1.addColorStop(0.45, 'rgba(18, 18, 24, 0.45)');
+          g1.addColorStop(1, 'rgba(9, 9, 11, 0.85)');
+          ctx.fillStyle = g1;
+          ctx.fillRect(0, 0, w, h);
+
+          const g2 = ctx.createRadialGradient(cx * 1.3, h * 0.85, 20, cx * 1.3, h * 0.85, w * 0.6);
+          g2.addColorStop(0, 'rgba(224, 32, 32, 0.08)');
+          g2.addColorStop(1, 'transparent');
+          ctx.fillStyle = g2;
+          ctx.fillRect(0, 0, w, h);
         } else {
-          grad.addColorStop(0, 'rgba(224, 32, 32, 0.04)');
-          grad.addColorStop(0.6, 'rgba(245, 245, 247, 0.3)');
-          grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+          ctx.fillStyle = '#FAFAFC';
+          ctx.fillRect(0, 0, w, h);
+
+          const g1 = ctx.createRadialGradient(cx, cy * 0.6, 20, cx, cy * 0.6, Math.max(w, h) * 0.7);
+          g1.addColorStop(0, 'rgba(224, 32, 32, 0.06)');
+          g1.addColorStop(0.5, 'rgba(240, 240, 245, 0.4)');
+          g1.addColorStop(1, 'rgba(250, 250, 252, 0.85)');
+          ctx.fillStyle = g1;
+          ctx.fillRect(0, 0, w, h);
         }
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, w, h);
 
-        if (!prefersReduced) angle += 0.0012;
+        // 1. 3D PERSPECTIVE WIREFRAME GRID (ACROSS FULL SCREEN DEPTH)
+        if (!prefersReduced) {
+          gridOffset = (gridOffset + 0.8 + (targetScrollY - scrollY) * 0.1) % 50;
+        }
 
-        const proj = [];
+        const horizonY = cy + Math.sin(camTiltX) * 100;
+        const gridLines = 14;
+        const maxZ = 900;
+        const minZ = 120;
+
+        ctx.lineWidth = 0.8;
+        for (let i = -gridLines; i <= gridLines; i++) {
+          const worldX = i * 90;
+          const scaleNear = fov / (fov + minZ);
+          const pxNear = cx + (worldX + camTiltY * 200) * scaleNear;
+          const pyNear = horizonY + (h * 0.5) * scaleNear;
+
+          const scaleFar = fov / (fov + maxZ);
+          const pxFar = cx + (worldX * 0.1 + camTiltY * 50) * scaleFar;
+          const pyFar = horizonY + 2;
+
+          ctx.beginPath();
+          ctx.moveTo(pxFar, pyFar);
+          ctx.lineTo(pxNear, pyNear);
+          ctx.strokeStyle = isDark
+            ? (i === 0 ? 'rgba(239, 68, 68, 0.38)' : 'rgba(224, 32, 32, 0.14)')
+            : (i === 0 ? 'rgba(224, 32, 32, 0.28)' : 'rgba(224, 32, 32, 0.08)');
+          ctx.stroke();
+        }
+
+        const numTransverse = 12;
+        for (let j = 0; j < numTransverse; j++) {
+          const rawZ = ((j * 65 + gridOffset) % (maxZ - minZ)) + minZ;
+          const scale = fov / (fov + rawZ);
+          const py = horizonY + (h * 0.5) * scale;
+          const halfWidth = (w * 0.9) * scale;
+          const alpha = Math.min(Math.max((maxZ - rawZ) / maxZ, 0.05), 0.35);
+
+          ctx.beginPath();
+          ctx.moveTo(cx - halfWidth, py);
+          ctx.lineTo(cx + halfWidth, py);
+          ctx.strokeStyle = isDark
+            ? `rgba(224, 32, 32, ${alpha * 0.35})`
+            : `rgba(224, 32, 32, ${alpha * 0.18})`;
+          ctx.stroke();
+        }
+
+        // 2. 3D FLOATING ROTATING WIREFRAME POLYHEDRA
+        shapes.forEach((shape, sIdx) => {
+          if (!prefersReduced) {
+            shape.rx += shape.spdX;
+            shape.ry += shape.spdY;
+          }
+
+          const effectiveY = shape.y - (scrollY * 0.45);
+          if (effectiveY < -h || effectiveY > h * 1.5) return;
+
+          const projectedVerts = [];
+          const cosX = Math.cos(shape.rx), sinX = Math.sin(shape.rx);
+          const cosY = Math.cos(shape.ry), sinY = Math.sin(shape.ry);
+          const cosZ = Math.cos(shape.rz), sinZ = Math.sin(shape.rz);
+
+          for (let v = 0; v < cubeVerts.length; v++) {
+            let [vx, vy, vz] = cubeVerts[v];
+            vx *= shape.size * 0.5;
+            vy *= shape.size * 0.5;
+            vz *= shape.size * 0.5;
+
+            let x1 = vx * cosY + vz * sinY;
+            let y1 = vy;
+            let z1 = -vx * sinY + vz * cosY;
+
+            let x2 = x1;
+            let y2 = y1 * cosX - z1 * sinX;
+            let z2 = y1 * sinX + z1 * cosX;
+
+            let x3 = x2 * cosZ - y2 * sinZ;
+            let y3 = x2 * sinZ + y2 * cosZ;
+            let z3 = z2;
+
+            const worldX = x3 + shape.x + (mouseX - cx) * 0.04;
+            const worldY = y3 + effectiveY;
+            const worldZ = z3 + shape.z;
+
+            const scale = fov / (fov + worldZ);
+            const px = worldX * scale + cx;
+            const py = worldY * scale + cy;
+            projectedVerts.push({ x: px, y: py, scale });
+          }
+
+          ctx.beginPath();
+          cubeEdges.forEach(([i1, i2]) => {
+            const p1 = projectedVerts[i1];
+            const p2 = projectedVerts[i2];
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+          });
+
+          const shapeAlpha = isDark ? 0.42 : 0.24;
+          ctx.strokeStyle = sIdx % 2 === 0
+            ? `rgba(224, 32, 32, ${shapeAlpha})`
+            : isDark ? `rgba(255, 255, 255, ${shapeAlpha * 0.6})` : `rgba(100, 116, 139, ${shapeAlpha * 0.7})`;
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+
+          projectedVerts.forEach((pv) => {
+            ctx.beginPath();
+            ctx.arc(pv.x, pv.y, Math.max(2 * pv.scale, 1.2), 0, Math.PI * 2);
+            ctx.fillStyle = isDark ? 'rgba(239, 68, 68, 0.85)' : 'rgba(224, 32, 32, 0.65)';
+            ctx.fill();
+          });
+        });
+
+        // 3. 3D CONSTELLATION NODES & LASER LINKS
+        const projectedPoints = [];
         for (let i = 0; i < points.length; i++) {
           const p = points[i];
           if (!prefersReduced) {
             p.x += p.vx;
             p.y += p.vy;
             p.z += p.vz;
-            if (p.z < 50) p.z = 700;
-            if (p.z > 700) p.z = 50;
-            if (Math.abs(p.x) > w * 0.8) p.vx *= -1;
-            if (Math.abs(p.y) > h * 0.8) p.vy *= -1;
+            if (p.z < 100) p.z = 900;
+            if (p.z > 900) p.z = 100;
+            if (Math.abs(p.x) > w * 0.9) p.vx *= -1;
+            if (Math.abs(p.y) > h * 1.1) p.vy *= -1;
           }
 
-          const cos = Math.cos(angle * 0.5);
-          const sin = Math.sin(angle * 0.5);
-          const rotX = p.x * cos - (p.z - 400) * sin;
-          const rotZ = p.x * sin + (p.z - 400) * cos + 400;
-
-          const scale = fov / (fov + rotZ);
-          proj.push({
-            px: rotX * scale + cx,
-            py: p.y * scale + cy,
-            scale: scale,
-            alpha: Math.min(Math.max((700 - rotZ) / 650, 0.08), 0.85),
-            size: p.size
-          });
+          const effectiveY = p.y - (scrollY * 0.3);
+          const scale = fov / (fov + p.z);
+          const px = (p.x + (mouseX - cx) * 0.05) * scale + cx;
+          const py = effectiveY * scale + cy;
+          const alpha = Math.min(Math.max((900 - p.z) / 800, 0.1), 0.85);
+          projectedPoints.push({ px, py, scale, alpha });
         }
 
-        // Connecting lines
-        for (let i = 0; i < proj.length; i++) {
-          for (let j = i + 1; j < proj.length; j++) {
-            const p1 = proj[i];
-            const p2 = proj[j];
+        for (let i = 0; i < projectedPoints.length; i++) {
+          for (let j = i + 1; j < projectedPoints.length; j++) {
+            const p1 = projectedPoints[i];
+            const p2 = projectedPoints[j];
             const dx = p1.px - p2.px;
             const dy = p1.py - p2.py;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 135) {
-              const alpha = (1 - dist / 135) * Math.min(p1.alpha, p2.alpha) * (isDark ? 0.35 : 0.18);
+
+            if (dist < 130) {
+              const lineAlpha = (1 - dist / 130) * Math.min(p1.alpha, p2.alpha) * (isDark ? 0.35 : 0.16);
               ctx.beginPath();
               ctx.moveTo(p1.px, p1.py);
               ctx.lineTo(p2.px, p2.py);
-              ctx.strokeStyle = `rgba(224, 32, 32, ${alpha})`;
+              ctx.strokeStyle = `rgba(224, 32, 32, ${lineAlpha})`;
               ctx.lineWidth = 0.8;
               ctx.stroke();
             }
           }
         }
 
-        // Draw nodes
-        for (let i = 0; i < proj.length; i++) {
-          const p = proj[i];
-          const r = Math.max(p.size * p.scale * 1.5, 1.2);
+        for (let i = 0; i < projectedPoints.length; i++) {
+          const p = projectedPoints[i];
+          const r = Math.max(points[i].size * p.scale * 1.6, 1.2);
           ctx.beginPath();
           ctx.arc(p.px, p.py, r, 0, Math.PI * 2);
           if (isDark) {
-            ctx.fillStyle = i % 3 === 0 ? `rgba(239, 68, 68, ${p.alpha * 0.9})` : `rgba(255, 255, 255, ${p.alpha * 0.6})`;
+            ctx.fillStyle = i % 3 === 0
+              ? `rgba(239, 68, 68, ${p.alpha * 0.9})`
+              : `rgba(255, 255, 255, ${p.alpha * 0.6})`;
           } else {
-            ctx.fillStyle = i % 3 === 0 ? `rgba(224, 32, 32, ${p.alpha * 0.7})` : `rgba(100, 116, 139, ${p.alpha * 0.5})`;
+            ctx.fillStyle = i % 3 === 0
+              ? `rgba(224, 32, 32, ${p.alpha * 0.7})`
+              : `rgba(100, 116, 139, ${p.alpha * 0.45})`;
           }
           ctx.fill();
         }

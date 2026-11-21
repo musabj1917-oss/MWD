@@ -47,20 +47,22 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;600;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap"
         />
       </head>
-      <body className="min-h-screen flex flex-col bg-white text-black dark:bg-[#09090B] dark:text-[#EDEDED] relative">
+      <body className="min-h-screen flex flex-col bg-transparent text-black dark:text-[#EDEDED] relative">
         <ThreeDBackground />
-        <a href="#main" className="sr-only focus:not-sr-only">Skip to content</a>
-        <PublicOnly><Header /></PublicOnly>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
-        <main id="main" className="flex-grow">
-          {children}
-        </main>
-        <ScrollReveal />
-        <PublicOnly>
-          <Footer />
-          <WhatsAppButton />
-          <TelegramButton />
-        </PublicOnly>
+        <div className="relative z-10 flex flex-col min-h-screen">
+          <a href="#main" className="sr-only focus:not-sr-only">Skip to content</a>
+          <PublicOnly><Header /></PublicOnly>
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
+          <main id="main" className="flex-grow">
+            {children}
+          </main>
+          <ScrollReveal />
+          <PublicOnly>
+            <Footer />
+            <WhatsAppButton />
+            <TelegramButton />
+          </PublicOnly>
+        </div>
       </body>
     </html>
   );
